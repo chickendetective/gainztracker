@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "630893975466",
+    "firebase_url": "https://gainztracker-893d3.firebaseio.com",
+    "project_id": "gainztracker-893d3",
+    "storage_bucket": "gainztracker-893d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630893975466:android:f6465acef90aafb8",
+        "android_client_info": {
+          "package_name": "hu.ait.android.gainztracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "630893975466-2b8o2cjgbi09mnhboe74uv6k9vmco5l8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuwCoXhbg56TIYmZJ99Eycp2pVZXoZGy4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
