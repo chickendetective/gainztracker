@@ -5,9 +5,10 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.animation.AnimationUtils
+import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 
-class DateActivity : AppCompatActivity(), ShoppingItemDialog.ShoppingItemHandler {
-    private lateinit var shoppingItemAdapter: ShoppingItemAdapter
+class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
+    private lateinit var shoppingItemAdapter: WorkoutAdapter
 
     companion object {
         val KEY_ITEM_TO_EDIT = "KEY_ITEM_TO_EDIT"
