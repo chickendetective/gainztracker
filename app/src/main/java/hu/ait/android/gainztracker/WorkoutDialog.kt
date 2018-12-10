@@ -3,6 +3,8 @@ package hu.ait.android.gainztracker
 import android.support.v4.app.DialogFragment
 import android.view.View
 import android.widget.AdapterView
+import android.widget.EditText
+import android.widget.Spinner
 import hu.ait.android.gainztracker.data.Workout
 
 class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
@@ -18,4 +20,9 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         fun itemCreated(item: Workout)
         fun itemUpdated(item: Workout)
     }
+
+    private lateinit var etItemName : EditText
+    private lateinit var ssCategory: Spinner
+
+
 }
