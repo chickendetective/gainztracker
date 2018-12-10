@@ -22,11 +22,10 @@
             android:visibility="gone"/>
 
     <Button
-            android:id="@+id/btnSend"
+            android:id="@+id/btnSelect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="sendClick"
-            android:text="Send"/>
+            android:text="Select"/>
 
 
 </LinearLayout>
