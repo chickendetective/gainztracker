@@ -6,9 +6,11 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.animation.AnimationUtils
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
+import hu.ait.android.gainztracker.data.Workout
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
-    private lateinit var shoppingItemAdapter: WorkoutAdapter
+
+    private lateinit var workoutAdapter: WorkoutAdapter
 
     companion object {
         val KEY_ITEM_TO_EDIT = "KEY_ITEM_TO_EDIT"
@@ -19,101 +21,35 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scrolling)
-        val anim = AnimationUtils.loadAnimation(this@ScrollingActivity, R.anim.fab_anim)
+        setContentView(R.layout.activity_date)
 
-        fabAddShoppingItem.setOnClickListener { view ->
-            showAddShoppingItemDialog()
-        }
-        fabRemoveAllShoppingItems.setOnClickListener {
-            fabRemoveAllShoppingItems.startAnimation(anim)
-            shoppingItemAdapter.deleteAll()
-        }
-        fabRemoveBoughtShoppingItems.setOnClickListener {
-            fabRemoveBoughtShoppingItems.startAnimation(anim)
-            shoppingItemAdapter.deleteBought()
-        }
         initRecyclerView()
-        tutorial()
 
     }
-
-    private fun tutorial() {
-        if (isFirstStart()) {
-            MaterialTapTargetPrompt.Builder(this)
-                    .setTarget(R.id.fabAddShoppingItem)
-                    .setPrimaryText(getString(R.string.add))
-                    .setSecondaryText(getString(R.string.tut_add_long))
-                    .show()
-            MaterialTapTargetPrompt.Builder(this)
-                    .setTarget(R.id.fabRemoveAllShoppingItems)
-                    .setPrimaryText(getString(R.string.clear))
-                    .setSecondaryText(getString(R.string.tut_clear_long))
-                    .show()
-            MaterialTapTargetPrompt.Builder(this)
-                    .setTarget(R.id.fabAddShoppingItem)
-                    .setPrimaryText(getString(R.string.bought_cap))
-                    .setSecondaryText(getString(R.string.tut_bought_long))
-                    .show()
-            saveStart()
-        }
-    }
-
-    private val KEY_FIRST = "KEY_FIRST"
-
-    fun isFirstStart() : Boolean {
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        return sp.getBoolean(KEY_FIRST, true)
-    }
-
-    fun saveStart() {
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        val editor = sp.edit()
-        editor.putBoolean(KEY_FIRST, false)
-        editor.apply()
-    }
-
 
 
     private fun initRecyclerView() {
-        Thread {
-            val shoppingItemList = AppDatabase.getInstance(
-                    this@ScrollingActivity
-            ).shoppingItemDao().findAllShoppingItems()
 
-            shoppingItemAdapter = ShoppingItemAdapter(
-                    this@ScrollingActivity,
-                    shoppingItemList
-            )
-
-            runOnUiThread {
-                recyclerShoppingItem.adapter = shoppingItemAdapter
-
-                val callback = ShoppingItemTouchHelperCallback(shoppingItemAdapter)
-                val touchHelper = ItemTouchHelper(callback)
-                touchHelper.attachToRecyclerView(recyclerShoppingItem)
-            }
-        }.start()
     }
 
-    private fun showAddShoppingItemDialog() {
-        ShoppingItemDialog().show(supportFragmentManager,
+    private fun showAddWorkoutDialog() {
+        WorkoutDialog().show(supportFragmentManager,
                 "TAG_CREATE")
     }
 
-    public fun showEditShoppingItemDialog(shoppingItemToEdit: ShoppingItem, idx: Int) {
+    public fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
         editIndex = idx
-        val editItemDialog = ShoppingItemDialog()
+        val editItemDialog = WorkoutDialog()
 
         val bundle = Bundle()
-        bundle.putSerializable(KEY_ITEM_TO_EDIT, shoppingItemToEdit)
+        bundle.putSerializable(KEY_ITEM_TO_EDIT, workoutToEdit)
         editItemDialog.arguments = bundle
 
         editItemDialog.show(supportFragmentManager,
                 "EDITITEMDIALOG")
     }
 
-    override fun shoppingItemCreated(item: ShoppingItem) {
+    override fun workoutCreated(item: Workout) {
         Thread {
             val shoppingItemId = AppDatabase.getInstance(
                     this@ScrollingActivity).shoppingItemDao().insertShoppingItem(item)
@@ -126,7 +62,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
         }.start()
     }
 
-    override fun shoppingItemUpdated(item: ShoppingItem) {
+    override fun workoutUpdated(item: Workout) {
         Thread {
             AppDatabase.getInstance(
                     this@ScrollingActivity).shoppingItemDao().updateShoppingItem(item)
