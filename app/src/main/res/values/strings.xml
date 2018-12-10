@@ -2,4 +2,6 @@
     <string name="app_name">GainzTracker</string>
     <string name="title_activity_login">Sign in</string>
     <string name="empty_login">This field can not be empty</string>
+    <string name="handler_error">The activity does not implement the ItemHandlerInterface properly</string>
+    <string name="empty_error">This field can not be empty</string>
 </resources>
