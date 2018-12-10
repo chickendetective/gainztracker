@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.google.firebase.firestore.FirebaseFirestore
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.workout_card.view.*
