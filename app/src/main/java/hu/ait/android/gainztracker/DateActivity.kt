@@ -90,10 +90,10 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
     }
 
     override fun workoutCreated(item: Workout) {
-
+        //add workout to firebase
     }
 
     override fun workoutUpdated(item: Workout) {
-
+        //update workout in firebase
     }
 }
