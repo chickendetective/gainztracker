@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.firestore.FirebaseFirestore
+import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.workout_card.view.*
@@ -38,9 +39,16 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         holder.tvType.text = workout.type
 
         when {
-            workout.type == "mobility" -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
-            workout.type == "strength" -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
-            workout.type == "endurance" -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
+            workout.type == "Mobility" -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
+            workout.type == "Strength" -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
+            workout.type == "Endurance" -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
+        }
+
+        holder.btnEdit.setOnClickListener {
+            (context as DateActivity).showEditWorkoutDialog(workout,holder.adapterPosition)
+        }
+        holder.btnDelete.setOnClickListener {
+            removeWorkout(holder.adapterPosition)
         }
     }
 
@@ -48,6 +56,7 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         val tvName: TextView = itemView.tvName
         val tvType: TextView = itemView.tvType
         val btnDelete: Button = itemView.btnDelete
+        val btnEdit: Button = itemView.btnEdit
         val ivTypeIcon: ImageView = itemView.ivTypeIcon
     }
 
@@ -72,6 +81,15 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
             workoutsList.removeAt(index)
             workoutKeys.removeAt(index)
             notifyItemRemoved(index)
+        }
+    }
+
+    fun editWorkout(workout: Workout, key: String) {
+        val index = workoutKeys.indexOf(key)
+        if (index != -1){
+            workoutsList[index].name = workout.name
+            workoutsList[index].type = workout.type
+            notifyItemChanged(index)
         }
     }
 }

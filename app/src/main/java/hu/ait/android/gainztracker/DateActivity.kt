@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.google.firebase.firestore.*
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Workout
+import kotlinx.android.synthetic.main.activity_date.*
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
 
@@ -27,6 +28,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
         setContentView(R.layout.activity_date)
 
         initWorkoutRecyclerView()
+        fabAddWorkout.setOnClickListener {
+            showAddWorkoutDialog()
+        }
 
     }
 
@@ -51,7 +55,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
                             workoutsAdapter.addWorkout(workout, docChange.document.id)
                         }
                         DocumentChange.Type.MODIFIED -> {
-
+                            val workout = docChange.document.toObject(Workout::class.java)
+                            workoutsAdapter.editWorkout(workout, docChange.document.id)
                         }
                         DocumentChange.Type.REMOVED -> {
                             workoutsAdapter.removeWorkoutByKey(docChange.document.id)

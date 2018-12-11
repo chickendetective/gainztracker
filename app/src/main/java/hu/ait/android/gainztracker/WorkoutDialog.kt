@@ -136,7 +136,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     private fun handleItemCreate() {
         //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
-        itemHandler.itemCreated(
+        itemHandler.workoutCreated(
             Workout(
                 etItemName.text.toString(),
                 ssCategory.selectedItem.toString(),
@@ -152,7 +152,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         itemToEdit.name = etItemName.text.toString()
         itemToEdit.type = ssCategory.selectedItem.toString()
 
-        itemHandler.itemUpdated(itemToEdit)
+        itemHandler.workoutUpdated(itemToEdit)
     }
 
 
