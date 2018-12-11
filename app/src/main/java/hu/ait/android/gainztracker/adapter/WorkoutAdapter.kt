@@ -66,4 +66,12 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         workoutKeys.removeAt(index)
         notifyItemRemoved(index)
     }
+    fun removeWorkoutByKey(key: String) {
+        val index = workoutKeys.indexOf(key)
+        if (index != -1) {
+            workoutsList.removeAt(index)
+            workoutKeys.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
 }

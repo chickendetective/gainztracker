@@ -26,8 +26,8 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     interface ItemHandler {
-        fun itemCreated(item: Workout)
-        fun itemUpdated(item: Workout)
+        fun workoutCreated(item: Workout)
+        fun workoutUpdated(item: Workout)
     }
 
     private lateinit var etWorkoutName : EditText

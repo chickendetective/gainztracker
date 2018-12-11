@@ -5,12 +5,15 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import com.google.firebase.firestore.*
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Workout
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
 
-    private lateinit var workoutAdapter: WorkoutAdapter
+    private lateinit var workoutsAdapter: WorkoutAdapter
+    private lateinit var workoutsListener: ListenerRegistration
 
     companion object {
         val KEY_ITEM_TO_EDIT = "KEY_ITEM_TO_EDIT"
@@ -23,13 +26,41 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_date)
 
-        initRecyclerView()
+        initWorkoutRecyclerView()
 
     }
 
 
-    private fun initRecyclerView() {
+    private fun initWorkoutRecyclerView() {
+        val db = FirebaseFirestore.getInstance()
+        val workoutsCollection = db.collection("workouts")
 
+        workoutsListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
+            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
+
+                if(p1 != null){
+                    Toast.makeText(this@DateActivity,"Error: ${p1.message}",
+                            Toast.LENGTH_LONG).show()
+                    return
+                }
+
+                for (docChange in querySnapshot!!.documentChanges) {
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED -> {
+                            val workout = docChange.document.toObject(Workout::class.java)
+                            workoutsAdapter.addWorkout(workout, docChange.document.id)
+                        }
+                        DocumentChange.Type.MODIFIED -> {
+
+                        }
+                        DocumentChange.Type.REMOVED -> {
+                            workoutsAdapter.removeWorkoutByKey(docChange.document.id)
+                        }
+                    }
+                }
+
+            }
+        })
     }
 
     private fun showAddWorkoutDialog() {
@@ -50,26 +81,10 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
     }
 
     override fun workoutCreated(item: Workout) {
-        Thread {
-            val shoppingItemId = AppDatabase.getInstance(
-                    this@ScrollingActivity).shoppingItemDao().insertShoppingItem(item)
 
-            item.shoppingItemId = shoppingItemId
-
-            runOnUiThread {
-                shoppingItemAdapter.addShoppingItem(item)
-            }
-        }.start()
     }
 
     override fun workoutUpdated(item: Workout) {
-        Thread {
-            AppDatabase.getInstance(
-                    this@ScrollingActivity).shoppingItemDao().updateShoppingItem(item)
 
-            runOnUiThread{
-                shoppingItemAdapter.updateShoppingItem(item, editIndex)
-            }
-        }.start()
     }
 }
