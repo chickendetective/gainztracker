@@ -27,6 +27,10 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_date)
 
+        if (intent.hasExtra(MainActivity.KEY_DATE)) {
+            tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
+        }
+
         initWorkoutRecyclerView()
         fabAddWorkout.setOnClickListener {
             showAddWorkoutDialog()
@@ -73,7 +77,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
                 "TAG_CREATE")
     }
 
-    public fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
+    fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
         editIndex = idx
         val editItemDialog = WorkoutDialog()
 

@@ -10,6 +10,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     //val db = FirebaseFirestore.getInstance()
+    companion object {
+        val KEY_DATE = "KEY_DATE"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         btnSelect.setOnClickListener {
             val dateSelected = calendar.date
             val detailIntent = Intent(this@MainActivity, DateActivity::class.java)
-            detailIntent.putExtra("DATE", dateSelected)
+            detailIntent.putExtra(KEY_DATE, dateSelected)
             startActivity(detailIntent)
         }
     }
