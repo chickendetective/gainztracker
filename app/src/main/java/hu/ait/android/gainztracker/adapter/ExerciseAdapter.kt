@@ -34,24 +34,25 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
     override fun onBindViewHolder(holder: ViewHolder, index: Int) {
         val exercise = exerciseList[holder.adapterPosition]
 
-        holder.tvName.text = exercise.name
-        holder.tvType.text = exercise.muscle
+        holder.tvExerciseName.text = exercise.name
+        holder.tvMuscleGroup.text = exercise.muscleGroup
 
         when {
-            exercise.muscle == "Upper body" -> holder.ivTypeIcon.setImageResource(R.drawable.upperbody_exercise_icon)
-            exercise.muscle == "Lower body" -> holder.ivTypeIcon.setImageResource(R.drawable.lowerbody_workout_icon)
-            exercise.muscle == "Core Workout" -> holder.ivTypeIcon.setImageResource(R.drawable.core_workout_icon)
+            exercise.muscleGroup == R.string.upper_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
+            exercise.muscleGroup == R.string.lower_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
+            exercise.muscleGroup == R.string.core.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
         }
 
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvName: TextView = itemView.tvExerciseName
-        val tvType: TextView = itemView.tvMuscleGroup
+        val tvExerciseName: TextView = itemView.tvExerciseName
+        val tvMuscleGroup: TextView = itemView.tvMuscleGroup
         val tvSet : TextView = itemView.tvSet
+        val tvRep : TextView = itemView.tvRep
         val tvWeight: TextView = itemView.tvWeight
         val btnDelete: Button = itemView.btnDeleteExercise
-        val ivTypeIcon: ImageView = itemView.ivTypeIcon
+        val ivMuscleGroupIcon: ImageView = itemView.ivMuscleGroupIcon
     }
 
     fun addExercise(exercise : Exercise, key: String) {

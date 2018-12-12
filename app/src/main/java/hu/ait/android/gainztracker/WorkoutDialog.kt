@@ -25,7 +25,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
     }
 
-    interface ItemHandler {
+    interface WorkoutHandler {
         fun workoutCreated(item: Workout)
         fun workoutUpdated(item: Workout)
     }
@@ -33,15 +33,15 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     private lateinit var etWorkoutName : EditText
     private lateinit var ssCategory: Spinner
 
-    private lateinit var itemHandler: ItemHandler
+    private lateinit var workoutHandler: WorkoutHandler
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         //val categoryList = mutableListOf(1, 2, 3)
-        categories = mutableListOf("Mobility", "Strength", "Endurance")
+        categories = mutableListOf(getString(R.string.mobility), getString(R.string.strength), getString(R.string.endurance))
 
-        if (context is ItemHandler){
-            itemHandler = context
+        if (context is WorkoutHandler){
+            workoutHandler = context
         } else{
             throw RuntimeException(
                 getString(R.string.handler_error))
@@ -50,17 +50,17 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("New Item")
+        builder.setTitle("New Workout")
 
         val rootView = rootViewSetter(builder)
         val adapter: ArrayAdapter<String> = adapterMaker(rootView)
 
         val arguments = this.arguments
         if (arguments != null && arguments.containsKey(
-                DateActivity.KEY_ITEM_TO_EDIT)) {
+                DateActivity.KEY_WORKOUT_TO_EDIT)) {
             setItem(arguments, adapter)
 
-            builder.setTitle("Edit Item") }
+            builder.setTitle("Edit Workout") }
 
         builder.setPositiveButton("OK") {
                 dialog, witch -> // empty
@@ -74,7 +74,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     private fun setItem(arguments: Bundle, adapter: ArrayAdapter<String>) {
         val item = arguments.getSerializable(
-            DateActivity.KEY_ITEM_TO_EDIT
+            DateActivity.KEY_WORKOUT_TO_EDIT
         )  as Workout
         etWorkoutName.setText(item.name)
         ssCategory.setSelection(adapter.getPosition(item.type))
@@ -120,9 +120,9 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun posButtonHandler() {
-        if (etItemName.text.isNotEmpty()) {
+        if (etWorkoutName.text.isNotEmpty()) {
             val arguments = this.arguments
-            if (arguments != null && arguments.containsKey(DateActivity.KEY_ITEM_TO_EDIT)) {
+            if (arguments != null && arguments.containsKey(DateActivity.KEY_WORKOUT_TO_EDIT)) {
                 handleItemEdit()
             } else {
                 handleItemCreate()
@@ -130,15 +130,15 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
             dialog.dismiss()
         } else {
-            if (etItemName.text.isEmpty()) etItemName.error = getString(R.string.empty_error)
+            if (etWorkoutName.text.isEmpty()) etWorkoutName.error = getString(R.string.empty_error)
         }
     }
 
     private fun handleItemCreate() {
         //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
-        itemHandler.workoutCreated(
-            Workout(
-                etItemName.text.toString(),
+        workoutHandler.workoutCreated(
+            Workout("",
+                etWorkoutName.text.toString(),
                 ssCategory.selectedItem.toString(),
                 ArrayList(0)
             )
@@ -146,14 +146,12 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun handleItemEdit() {
-        val itemToEdit = arguments?.getSerializable(
-            DateActivity.KEY_ITEM_TO_EDIT
+        val workoutToEdit = arguments?.getSerializable(
+            DateActivity.KEY_WORKOUT_TO_EDIT
         ) as Workout
-        itemToEdit.name = etItemName.text.toString()
-        itemToEdit.type = ssCategory.selectedItem.toString()
+        workoutToEdit.name = etWorkoutName.text.toString()
+        workoutToEdit.type = ssCategory.selectedItem.toString()
 
-        itemHandler.workoutUpdated(itemToEdit)
+        workoutHandler.workoutUpdated(workoutToEdit)
     }
-
-
 }

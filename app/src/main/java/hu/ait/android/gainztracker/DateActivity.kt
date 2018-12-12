@@ -1,11 +1,8 @@
 package hu.ait.android.gainztracker
 
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
@@ -15,7 +12,7 @@ import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
 import java.util.*
 
-class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
+class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     private lateinit var workoutAdapter: WorkoutAdapter
     private lateinit var workoutListener: ListenerRegistration
@@ -28,7 +25,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
 
     companion object {
 
-        val KEY_ITEM_TO_EDIT = "KEY_ITEM_TO_EDIT"
+        val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT"
     }
     private var editIndex: Int = 0
 
@@ -98,28 +95,28 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
         val editItemDialog = WorkoutDialog()
 
         val bundle = Bundle()
-        bundle.putSerializable(KEY_ITEM_TO_EDIT, workoutToEdit)
+        bundle.putSerializable(KEY_WORKOUT_TO_EDIT, workoutToEdit)
         editItemDialog.arguments = bundle
 
         editItemDialog.show(supportFragmentManager,
                 "EDITITEMDIALOG")
     }
 
-    override fun workoutCreated(item: Workout) {
+    override fun workoutCreated(workout: Workout) {
         //add workout to firebase
         val data = HashMap<String, Any>()
-        data.put("name", item.name)
-        data.put("workoutType", item.type)
+        data.put("name", workout.name)
+        data.put("workoutType", workout.type)
         data.put("numExercise", 0)
         db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").add(data)
                 .addOnSuccessListener { documentReference ->
                     Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
-                    item.id = documentReference.id
+                    workout.id = documentReference.id
                     Thread {
                         runOnUiThread {
-                            workoutAdapter.addWorkout(item, documentReference.id)
+                            workoutAdapter.addWorkout(workout, documentReference.id)
                         }
                     }.start()
                 }
@@ -128,19 +125,19 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
                 }
     }
 
-    override fun workoutUpdated(item: Workout) {
+    override fun workoutUpdated(workout: Workout) {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
         val workoutRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout").document(item.id!!)
+                .collection("workout").document(workout.id!!)
 
         workoutRef
-                .update("name", item.name, "type", item.type, "numExercise", item.exercises.size)
+                .update("name", workout.name, "type", workout.type, "numExercise", workout.exercises.size)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                     Thread {
                         runOnUiThread {
-                            workoutAdapter.editWorkout(item, item.id!!)
+                            workoutAdapter.editWorkout(workout, workout.id!!)
                         }
                     }.start()
                 }

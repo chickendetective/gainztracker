@@ -10,14 +10,16 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
+import kotlinx.android.synthetic.main.dialog_exercise.view.*
 import kotlinx.android.synthetic.main.dialog_workout.*
 import kotlinx.android.synthetic.main.dialog_workout.view.*
 import java.lang.RuntimeException
 
 class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
-    var categories = mutableListOf<String>()
+    var muscleGroups = mutableListOf<String>()
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
     }
@@ -25,23 +27,27 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
     }
 
-    interface ItemHandler {
-        fun itemCreated(item: Workout)
-        fun itemUpdated(item: Workout)
+    interface ExerciseHandler {
+        fun exerciseCreated(exercise: Exercise)
+        fun exerciseUpdated(exercise: Exercise)
     }
 
     private lateinit var etExerciseName : EditText
-    private lateinit var ssCategory: Spinner
+    private lateinit var ssMuscleGroup: Spinner
+    private lateinit var etSet : EditText
+    private lateinit var etRep : EditText
+    private lateinit var etWeight : EditText
 
-    private lateinit var itemHandler: ItemHandler
+
+    private lateinit var exerciseHandler: ExerciseHandler
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         //val categoryList = mutableListOf(1, 2, 3)
-        categories = mutableListOf("Upper Body", "Lower Body", "Core workout")
+        muscleGroups = mutableListOf(getString(R.string.upper_body), getString(R.string.lower_body), getString(R.string.core))
 
-        if (context is ItemHandler){
-            itemHandler = context
+        if (context is ExerciseHandler){
+            exerciseHandler = context
         } else{
             throw RuntimeException(
                 getString(R.string.handler_error))
@@ -50,17 +56,17 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("New Item")
+        builder.setTitle("New Exercise")
 
         val rootView = rootViewSetter(builder)
         val adapter: ArrayAdapter<String> = adapterMaker(rootView)
 
         val arguments = this.arguments
         if (arguments != null && arguments.containsKey(
-                DateActivity.KEY_ITEM_TO_EDIT)) { //TODO: change into workout activity later
+                WorkoutActivity.KEY_EXERCISE_TO_EDIT)) { //TODO: change into workout activity later
             setItem(arguments, adapter)
 
-            builder.setTitle("Edit Item") }
+            builder.setTitle("Edit Exercise") }
 
         builder.setPositiveButton("OK") {
                 dialog, witch -> // empty
@@ -74,32 +80,42 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     private fun setItem(arguments: Bundle, adapter: ArrayAdapter<String>) {
         val item = arguments.getSerializable(
-            DateActivity.KEY_ITEM_TO_EDIT
-        )  as Workout
+            WorkoutActivity.KEY_EXERCISE_TO_EDIT
+        )  as Exercise
         etExerciseName.setText(item.name)
-        ssCategory.setSelection(adapter.getPosition(item.type))
+        ssMuscleGroup.setSelection(adapter.getPosition(item.muscleGroup))
+        etSet.setText(item.set.toString())
+        etRep.setText(item.rep.toString())
+        etWeight.setText(item.weight.toString())
+
+
     }
 
     private fun rootViewSetter(builder: AlertDialog.Builder): View {
         val rootView = requireActivity().layoutInflater.inflate(
-            R.layout.dialog_workout, null
+            R.layout.dialog_exercise, null
         )
-        etExerciseName = rootView.etItemName
+        etExerciseName = rootView.etExerciseName
+        ssMuscleGroup = rootView.ssMuscleGroup
+        etSet = rootView.etSet
+        etRep = rootView.etRep
+        etWeight = rootView.etWeight
+
 
         builder.setView(rootView)
         return rootView
     }
 
     private fun adapterMaker(rootView: View): ArrayAdapter<String> {
-        ssCategory = rootView.spCategory
-        ssCategory.onItemSelectedListener = this
+        ssMuscleGroup = rootView.ssMuscleGroup
+        ssMuscleGroup.onItemSelectedListener = this
         val adapter: ArrayAdapter<String> = ArrayAdapter(
             this.context,
             android.R.layout.simple_spinner_item,
-            categories
+            muscleGroups
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        ssCategory.adapter = adapter
+        ssMuscleGroup.adapter = adapter
 
         return adapter
     }
@@ -120,9 +136,9 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun posButtonHandler() {
-        if (etItemName.text.isNotEmpty()) {
+        if (etExerciseName.text.isNotEmpty()) {
             val arguments = this.arguments
-            if (arguments != null && arguments.containsKey(DateActivity.KEY_ITEM_TO_EDIT)) {
+            if (arguments != null && arguments.containsKey(WorkoutActivity.KEY_EXERCISE_TO_EDIT)) {
                 handleItemEdit()
             } else {
                 handleItemCreate()
@@ -130,29 +146,35 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
             dialog.dismiss()
         } else {
-            if (etItemName.text.isEmpty()) etItemName.error = getString(R.string.empty_error)
+            if (etExerciseName.text.isEmpty()) etExerciseName.error = getString(R.string.empty_error)
         }
     }
 
     private fun handleItemCreate() {
         //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
-        itemHandler.itemCreated(
-            Workout(
-                etItemName.text.toString(),
-                ssCategory.selectedItem.toString(),
-                ArrayList(0)
-            )
+        exerciseHandler.exerciseCreated(
+            Exercise("",
+                    etExerciseName.text.toString(),
+                    ssMuscleGroup.selectedItem.toString(),
+                    etSet.text.toString().toInt(),
+                    etRep.text.toString().toInt(),
+                    etWeight.text.toString().toDouble()
+                    )
         )
     }
 
     private fun handleItemEdit() {
         val itemToEdit = arguments?.getSerializable(
-            DateActivity.KEY_ITEM_TO_EDIT
-        ) as Workout
-        itemToEdit.name = etItemName.text.toString()
-        itemToEdit.type = ssCategory.selectedItem.toString()
+            WorkoutActivity.KEY_EXERCISE_TO_EDIT
+        ) as Exercise
+        itemToEdit.name = etExerciseName.text.toString()
+        itemToEdit.muscleGroup = ssMuscleGroup.selectedItem.toString()
+        itemToEdit.set = etSet.text.toString().toInt()
+        itemToEdit.rep = etRep.text.toString().toInt()
+        itemToEdit.weight = etWeight.text.toString().toDouble()
 
-        itemHandler.itemUpdated(itemToEdit)
+
+        exerciseHandler.exerciseUpdated(itemToEdit)
     }
 
 

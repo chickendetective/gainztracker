@@ -46,9 +46,9 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         holder.tvType.text = workout.type
 
         when {
-            workout.type == "Mobility" -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
-            workout.type == "Strength" -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
-            workout.type == "Endurance" -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
+            workout.type == R.string.mobility.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
+            workout.type == R.string.strength.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
+            workout.type == R.string.endurance.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
         }
 
         holder.btnEdit.setOnClickListener {

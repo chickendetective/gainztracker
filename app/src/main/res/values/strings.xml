@@ -4,4 +4,14 @@
     <string name="empty_login">This field can not be empty</string>
     <string name="handler_error">The activity does not implement the ItemHandlerInterface properly</string>
     <string name="empty_error">This field can not be empty</string>
+    <string name="enter_workout_name">Enter workout name</string>
+    <string name="sets">Sets</string>
+    <string name="reps">Reps</string>
+    <string name="weight">Weight</string>
+    <string name="upper_body">Upper Body</string>
+    <string name="lower_body">Lower Body</string>
+    <string name="core">Core</string>
+    <string name="mobility">Mobility</string>
+    <string name="strength">Strength</string>
+    <string name="endurance">Endurance</string>
 </resources>

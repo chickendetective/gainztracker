@@ -5,6 +5,7 @@ import java.io.Serializable
 
 data class Exercise(var id: String?,
                     var name: String = "",
-                   var muscle: String = "",
-                    var rep: Number = 0,
-                    var set: Number = 0): Serializable
+                   var muscleGroup: String = "",
+                    var set: Int = 0,
+                    var rep: Int = 0,
+                    var weight: Double = 0.0): Serializable
