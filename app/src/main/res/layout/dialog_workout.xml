@@ -6,8 +6,8 @@
               android:orientation="vertical">
 
     <EditText
-            android:id="@+id/etItemName"
-            android:hint="Enter workout name"
+            android:id="@+id/etWorkoutName"
+            android:hint="@string/ent_workout_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

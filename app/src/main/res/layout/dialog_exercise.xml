@@ -9,28 +9,36 @@
             android:id="@+id/etExerciseName"
             android:hint="@string/enter_workout_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="#7cfc00"
+            />
 
     <Spinner
             android:id="@+id/ssMuscleGroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            />
     <EditText
             android:id="@+id/etSet"
             android:inputType="number"
             android:hint="@string/sets"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="#7cfc00"
+            />
     <EditText
             android:id="@+id/etRep"
             android:inputType="number"
             android:hint="@string/reps"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="#7cfc00"
+            />
     <EditText
             android:id="@+id/etWeight"
             android:inputType="number"
             android:hint="@string/weight"
+            android:textColor="#7cfc00"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
