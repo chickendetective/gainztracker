@@ -1,8 +1,16 @@
 package hu.ait.android.gainztracker
 
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
@@ -10,6 +18,7 @@ import com.google.firebase.firestore.EventListener
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
@@ -27,6 +36,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val WORKOUT_ID = "WORKOUT_ID"
 
         val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT"
+        private const val CAMERA_REQUEST_CODE = 102
     }
     private var editIndex: Int = 0
 
@@ -45,6 +55,60 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             showAddWorkoutDialog()
         }
 
+        btnRecordGainz.setOnClickListener{
+            val gainzIntent = Intent(this@DateActivity, DateActivity::class.java)
+            startActivity(gainzIntent)
+            /*startActivityForResult(
+                    Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+                    CAMERA_REQUEST_CODE)*/
+        }
+
+        requestNeededPermission()
+
+    }
+
+    private fun requestNeededPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                        android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            android.Manifest.permission.CAMERA)) {
+                Toast.makeText(this,
+                        "Camera Access Required", Toast.LENGTH_SHORT).show()
+            }
+
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.CAMERA),
+                    1001)
+        } else {
+            // we already have this permission
+            btnRecordGainz.isEnabled = true
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            1001 -> {
+                if (grantResults.isNotEmpty() && grantResults[0]
+                        == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "CAMERA permission granted", Toast.LENGTH_SHORT).show()
+                    btnRecordGainz.isEnabled = true
+                } else {
+                    Toast.makeText(this, "CAMERA permission NOT granted", Toast.LENGTH_SHORT).show()
+                    btnRecordGainz.isEnabled = false
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+
+            data?.let {
+                val uploadBitmap = it.extras.get("data") as Bitmap
+                Toast.makeText(this, "bitmap ok", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun initWorkoutRecyclerView() {
