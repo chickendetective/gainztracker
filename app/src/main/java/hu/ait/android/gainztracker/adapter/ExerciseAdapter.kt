@@ -37,6 +37,9 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
 
         holder.tvExerciseName.text = exercise.name
         holder.tvMuscleGroup.text = exercise.muscleGroup
+        holder.tvSet.text = "Sets Left: " + exercise.set.toString()
+        holder.tvRep.text = "Reps: " + exercise.rep.toString()
+        holder.tvWeight.text = "Weight: " + exercise.weight.toString()
 
         when {
             exercise.muscleGroup == R.string.upper_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
