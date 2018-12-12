@@ -62,7 +62,7 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
             //            Toast.makeText(context, "BUY THIS!", Toast.LENGTH_LONG).show()
             val intentStart = Intent(context, WorkoutActivity::class.java)
             val workoutName = holder.itemView.tvName.toString()
-            intentStart.putExtra("WORKOUTID", nameToKey[workoutName]) //TODO: change to workout ID
+            intentStart.putExtra(DateActivity.WORKOUT_ID, nameToKey[workoutName])
             context.startActivity(intentStart)
         }
     }
@@ -119,5 +119,13 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
             nameToKey.put(workout.name, id!!)
             notifyItemChanged(index)
         }
+    }
+
+    fun findWorkout(workoutID : String): String{
+        for (entry in nameToKey){
+            if (entry.value == workoutID) return entry.key
+        }
+
+        return ""
     }
 }

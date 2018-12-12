@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
 import hu.ait.android.gainztracker.adapter.ExerciseAdapter
+import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
@@ -17,13 +18,14 @@ import java.util.*
 class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private lateinit var exerciseAdapter: ExerciseAdapter
+    private lateinit var workoutAdapter: WorkoutAdapter
     private lateinit var exerciseListener: ListenerRegistration
 
     val db = FirebaseFirestore.getInstance()
 
     private var curUser = FirebaseAuth.getInstance().currentUser
 
-    private var curDate = Calendar.getInstance().time
+    private var curDate = DateActivity().getDate()
 
     companion object {
 
@@ -36,9 +38,9 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_workout)
 
-        if (intent.hasExtra(MainActivity.KEY_DATE)) {
-            tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
-            curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE))
+        if (intent.hasExtra(DateActivity.WORKOUT_ID)) {
+            val workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
+            tvWorkout.text = workoutAdapter.findWorkout((workoutID))
         }
 
         initExerciseRecyclerView()
@@ -62,7 +64,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
             override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
 
                 if(p1 != null){
-                    Toast.makeText(this@DateActivity,"Error: ${p1.message}",
+                    Toast.makeText(this@WorkoutActivity,"Error: ${p1.message}",
                             Toast.LENGTH_LONG).show()
                     return
                 }
@@ -71,14 +73,14 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                     when (docChange.type) {
                         DocumentChange.Type.ADDED -> {
                             val workout = docChange.document.toObject(Workout::class.java)
-                            exerciseAdapter.addWorkout(workout, docChange.document.id)
+                            exerciseAdapter.addExercise(workout, docChange.document.id)
                         }
                         DocumentChange.Type.MODIFIED -> {
                             val workout = docChange.document.toObject(Workout::class.java)
-                            exerciseAdapter.editWorkout(workout, docChange.document.id)
+                            exerciseAdapter.editExercise(workout, docChange.document.id)
                         }
                         DocumentChange.Type.REMOVED -> {
-                            exerciseAdapter.removeWorkoutByKey(docChange.document.id)
+                            exerciseAdapter.removeExerciseByKey(docChange.document.id)
                         }
                     }
                 }

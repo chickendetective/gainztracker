@@ -24,6 +24,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     private var curDate = Calendar.getInstance().time
 
     companion object {
+        val WORKOUT_ID = "WORKOUT_ID"
 
         val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT"
     }
