@@ -26,6 +26,7 @@
         <activity android:name=".WorkoutActivity">
         </activity>
         <activity android:name=".DateActivity" />
+        <activity android:name=".GainzViewActivity"/>
     </application>
 
 </manifest>
