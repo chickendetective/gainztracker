@@ -171,7 +171,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         ) as Exercise
         itemToEdit.name = etExerciseName.text.toString()
         itemToEdit.muscleGroup = ssMuscleGroup.selectedItem.toString()
-        itemToEdit.set = etSet.text.toString().toInt()
+        itemToEdit.set =etSet.text.toString().toInt()
         itemToEdit.rep = etRep.text.toString().toInt()
         itemToEdit.weight = etWeight.text.toString().toDouble()
 

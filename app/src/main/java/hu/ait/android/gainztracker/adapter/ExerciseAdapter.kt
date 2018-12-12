@@ -81,7 +81,6 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
         FirebaseFirestore.getInstance().collection("exercise").document(
             exerciseKeys[index]
         ).delete()
-
         exerciseList.removeAt(index)
         exerciseKeys.removeAt(index)
         notifyItemRemoved(index)
