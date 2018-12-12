@@ -23,9 +23,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //var selectedDate : Long = calendar.date
         //add a document for new user or update the existing one
-        val userName = curUser!!.email
-        val data = HashMap<String, Any>()
-        data.put("userName", userName!!)
+        val userName = curUser?.email
+        val data = HashMap<String, Any?>()
+        data.put("userName", userName)
         data.put("lastLogin", Calendar.getInstance().time)
         db.collection("users").document(curUser!!.uid).set(data, SetOptions.merge())
 

@@ -11,7 +11,6 @@
     <string name="upper_body">Upper Body</string>
     <string name="lower_body">Lower Body</string>
     <string name="core">Core</string>
-    <string name="mobility">Mobility</string>
     <string name="strength">Strength</string>
     <string name="endurance">Endurance</string>
     <string name="wednesday">Wednesday</string>
@@ -25,16 +24,13 @@
     <string name="delete">DELETE</string>
     <string name="add_set">ADD SET</string>
     <string name="log_set">LOG SET</string>
-    <string name="upper_body">Upper Body</string>
     <string name="bench_press">Bench Press</string>
     <string name="edit">EDIT</string>
+    <string name="mobility">Mobility</string>
     <string name="sets_left_3">Sets Left: 3</string>
     <string name="reps_10">Reps: 10</string>
     <string name="weight_45">Weight: 45</string>
-    <string name="delete">DELETE</string>
-    <string name="mobility">Mobility</string>
     <string name="full_body_blast">Full Body Blast</string>
-    <string name="edit">EDIT</string>
     <string name="sets_left">Sets Left:</string>
     <string name="cur_reps">Reps:</string>
     <string name="cur_weight">Weight:</string>
