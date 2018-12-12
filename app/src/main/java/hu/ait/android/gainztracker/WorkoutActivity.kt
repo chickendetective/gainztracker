@@ -21,7 +21,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     private lateinit var workoutAdapter: WorkoutAdapter
     private lateinit var exerciseListener: ListenerRegistration
 
-    val db = FirebaseFirestore.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     private var curUser = FirebaseAuth.getInstance().currentUser
 
@@ -84,7 +84,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                             exerciseAdapter.addExercise(exercise, docChange.document.id)
                         }
                         DocumentChange.Type.MODIFIED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
+                            val exercise = docChange.document.toObject(Exercise::class.java)
                             exerciseAdapter.editExercise(exercise, docChange.document.id)
                         }
                         DocumentChange.Type.REMOVED -> {
@@ -133,7 +133,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                     exercise.id = documentReference.id
                     Thread {
                         runOnUiThread {
-                            exerciseAdapter.addWorkout(exercise, documentReference.id)
+                            exerciseAdapter.addExercise(exercise, documentReference.id)
                         }
                     }.start()
                 }
@@ -146,22 +146,26 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
         val exerciseRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout").document(exercise.id!!)
+                .collection("workout").document(workoutID)
+                .collection("exercise").document(exercise.id!!)
+
+        val sets = SetData(exercise.set, exercise.rep, exercise.weight)
 
         exerciseRef
-                .update("name", exercise.name, "type", exercise.type, "numExercise", exercise.exercises.size)
+                .update("name", exercise.name, "muscleGroup", exercise.muscleGroup,
+                        "sets", sets)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                     Thread {
                         runOnUiThread {
-                            exerciseAdapter.editWorkout(exercise, exercise.id!!)
+                            exerciseAdapter.editExercise(exercise, exercise.id!!)
                         }
                     }.start()
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }
 
-    fun getDate(): Any {
-        return curDate
-    }
+//    fun getDate(): Any {
+//        return curDate
+//    }
 }
