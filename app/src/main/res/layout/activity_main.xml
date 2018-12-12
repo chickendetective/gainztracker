@@ -11,8 +11,9 @@
               android:orientation="vertical">
     <CalendarView
             android:id="@+id/calendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusedMonthDateColor="#7cfc00">
     </CalendarView>
 
     <ImageView
@@ -23,9 +24,12 @@
 
     <Button
             android:id="@+id/btnSelect"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select"/>
+            android:text="@string/select"
+            android:background="#7cfc00"
+            android:textColor="@android:color/white"
+            />
 
 
 </LinearLayout>

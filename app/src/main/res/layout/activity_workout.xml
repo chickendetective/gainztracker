@@ -30,7 +30,7 @@
             android:id="@+id/tvWorkout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Core Blast"
+            android:text="@string/core_blast"
             android:textColor="#7cfc00"
             android:textSize="24sp"
             android:textStyle="bold"

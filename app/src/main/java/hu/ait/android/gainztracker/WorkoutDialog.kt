@@ -84,7 +84,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         val rootView = requireActivity().layoutInflater.inflate(
             R.layout.dialog_workout, null
         )
-        etWorkoutName = rootView.etItemName
+        etWorkoutName = rootView.etWorkoutName
 
         builder.setView(rootView)
         return rootView

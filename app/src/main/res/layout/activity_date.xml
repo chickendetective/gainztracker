@@ -30,7 +30,7 @@
         android:id="@+id/tvDay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wednesday"
+        android:text="@string/wednesday"
         android:textColor="#7cfc00"
         android:textSize="24sp"
         android:textStyle="bold"
