@@ -86,4 +86,12 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
         exerciseKeys.removeAt(index)
         notifyItemRemoved(index)
     }
+
+    fun removeExerciseByKey(id: String) {
+
+    }
+
+    fun editExercise(workout: Workout, id: String) {
+
+    }
 }

@@ -27,11 +27,17 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private var curDate = DateActivity().getDate()
 
+    private var workoutID = ""
+
+    //private var curWorkout = null
+
     companion object {
 
         val KEY_EXERCISE_TO_EDIT = "KEY_EXERCISE_TO_EDIT"
     }
     private var editIndex: Int = 0
+
+    class SetData(setNo: Int, reps: Int, weight: Double)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +45,9 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         setContentView(R.layout.activity_workout)
 
         if (intent.hasExtra(DateActivity.WORKOUT_ID)) {
-            val workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
-            tvWorkout.text = workoutAdapter.findWorkout((workoutID))
+            workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
+            //curWorkout = workoutAdapter.findWorkout(workoutID)
+            tvWorkout.text = workoutAdapter.findWorkout(workoutID)!!.name
         }
 
         initExerciseRecyclerView()
@@ -54,11 +61,12 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
         data.put("lastLogin", Calendar.getInstance().time)
-        db.collection("users").document(curUser!!.uid).collection("DayData")
-                .document(curDate.toString()).set(data, SetOptions.merge())
+//        db.collection("users").document(curUser!!.uid)
+//            .collection("DayData").document(curDate.toString())
+//            .collection("workout").document()
         val exercisesCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout").document() //create a subcollection for all the execises (still need specific document
+                .collection("workout").document(workoutID).collection("exercise")
 
         exerciseListener = exercisesCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
             override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
@@ -108,6 +116,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     override fun exerciseCreated(exercise: Exercise) {
         //add exercise to firebase
+        val sets : SetData = SetData(exercise.set, exercise.rep, exercise.weight)
         val data = HashMap<String, Any>()
         data.put("name", exercise.name)
         data.put("muscleGroup", exercise.muscleGroup)

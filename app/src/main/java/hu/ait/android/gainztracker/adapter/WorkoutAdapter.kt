@@ -121,11 +121,19 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         }
     }
 
-    fun findWorkout(workoutID : String): String{
+    fun findWorkoutName(workoutID : String): String{
         for (entry in nameToKey){
             if (entry.value == workoutID) return entry.key
         }
 
         return ""
+    }
+
+    fun findWorkout(workoutID: String): Workout?{
+        val workoutName = findWorkoutName(workoutID)
+        for (workout in workoutsList){
+            if (workout.name == workoutName) return workout
+        }
+        return null
     }
 }
