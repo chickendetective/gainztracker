@@ -80,12 +80,12 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                 for (docChange in querySnapshot!!.documentChanges) {
                     when (docChange.type) {
                         DocumentChange.Type.ADDED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
-                            exerciseAdapter.addExercise(workout, docChange.document.id)
+                            val exercise = docChange.document.toObject(Exercise::class.java)
+                            exerciseAdapter.addExercise(exercise, docChange.document.id)
                         }
                         DocumentChange.Type.MODIFIED -> {
                             val workout = docChange.document.toObject(Workout::class.java)
-                            exerciseAdapter.editExercise(workout, docChange.document.id)
+                            exerciseAdapter.editExercise(exercise, docChange.document.id)
                         }
                         DocumentChange.Type.REMOVED -> {
                             exerciseAdapter.removeExerciseByKey(docChange.document.id)
@@ -120,12 +120,12 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val data = HashMap<String, Any>()
         data.put("name", exercise.name)
         data.put("muscleGroup", exercise.muscleGroup)
-        data.put("sets", exercise.set)
-        data.put("reps", exercise.rep)
-        data.put("weight", exercise.weight)
+        data.put("sets", sets)
+
         db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout").document()
+                .collection("workout").document(workoutID)
+                .collection("exercise")
                 //FIX PATH^^^
                 .add(data)
                 .addOnSuccessListener { documentReference ->
