@@ -29,7 +29,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private var workoutID = ""
 
-    //private var curWorkout = null
+    private lateinit var curWorkout: Workout
 
     companion object {
 
@@ -37,7 +37,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
     private var editIndex: Int = 0
 
-    class SetData(setNo: Int, reps: Int, weight: Double)
+    class SetData(setLeft: Int, reps: Int, weight: Double)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +46,9 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
         if (intent.hasExtra(DateActivity.WORKOUT_ID)) {
             workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
-            //curWorkout = workoutAdapter.findWorkout(workoutID)
+            curWorkout = workoutAdapter.findWorkout(workoutID)!!
             tvWorkout.text = workoutAdapter.findWorkout(workoutID)!!.name
+            exerciseAdapter.setWorkoutID(workoutID)
         }
 
         initExerciseRecyclerView()
@@ -60,10 +61,11 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     private fun initExerciseRecyclerView() {
         //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
-        data.put("lastLogin", Calendar.getInstance().time)
-//        db.collection("users").document(curUser!!.uid)
-//            .collection("DayData").document(curDate.toString())
-//            .collection("workout").document()
+        data.put("type", curWorkout.type)
+        db.collection("users").document(curUser!!.uid)
+            .collection("DayData").document(curDate.toString())
+            .collection("workout").document(workoutID).set(data, SetOptions.merge())
+
         val exercisesCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID).collection("exercise")
@@ -115,8 +117,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseCreated(exercise: Exercise) {
-        //add exercise to firebase
-        val sets : SetData = SetData(exercise.set, exercise.rep, exercise.weight)
+        val sets = SetData(exercise.set, exercise.rep, exercise.weight)
         val data = HashMap<String, Any>()
         data.put("name", exercise.name)
         data.put("muscleGroup", exercise.muscleGroup)
@@ -143,7 +144,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseUpdated(exercise: Exercise) {
-        //update workout in firebase - either using id or index through the keylist in adapter to find it
         val exerciseRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID)

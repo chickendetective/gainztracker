@@ -2,13 +2,16 @@ package hu.ait.android.gainztracker.adapter
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Exercise
@@ -18,8 +21,15 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
 
     private var exerciseList = mutableListOf<Exercise>()
     private var exerciseKeys = mutableListOf<String>()
+    private var nameToKey : MutableMap<String, String> = HashMap()
+
+    private val db = FirebaseFirestore.getInstance()
+
+    private var curUser = FirebaseAuth.getInstance().currentUser
 
     private var lastPosition = -1
+
+    private var workoutID = ""
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
@@ -53,11 +63,45 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
             (context as WorkoutActivity).showEditExerciseDialog(exercise,holder.adapterPosition)
         }
         holder.btnAddSet.setOnClickListener {
-
+            addSet(exercise)
         }
         holder.btnLogSet.setOnClickListener {
-
+            logSet(exercise)
         }
+    }
+
+    private fun logSet(exercise: Exercise) {
+        val exerciseRef = db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("workout").document(workoutID)
+                .collection("exercise").document(nameToKey[exercise.name]!!)
+
+        val index = exerciseList.indexOf(exercise)
+        exerciseRef
+                .update("sets.setLeft", exercise.set)
+                .addOnSuccessListener {
+                    Log.d("TAG", "DocumentSnapshot successfully updated!")
+                    exerciseList[index].set = exerciseList[index].set - 1
+                    notifyDataSetChanged()
+                }
+                .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+    }
+
+    private fun addSet(exercise: Exercise) {
+        val exerciseRef = db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("workout").document(workoutID)
+                .collection("exercise").document(nameToKey[exercise.name]!!)
+
+        val index = exerciseList.indexOf(exercise)
+        exerciseRef
+                .update("sets.setLeft", exercise.set)
+                .addOnSuccessListener {
+                    Log.d("TAG", "DocumentSnapshot successfully updated!")
+                    exerciseList[index].set = exerciseList[index].set + 1
+                    notifyDataSetChanged()
+                }
+                .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -76,25 +120,56 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
     fun addExercise(exercise : Exercise, key: String) {
         exerciseList.add(exercise)
         exerciseKeys.add(key)
+        nameToKey.put(exercise.name, key)
         notifyDataSetChanged()
     }
 
     private fun removeExercise(index: Int) {
-        //prob needs to look here if database doesn't work
-        FirebaseFirestore.getInstance().collection("exercise").document(
-            exerciseKeys[index]
-        ).delete()
+        val exName = exerciseList[index].name
+        db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("workout").document(workoutID)
+                .collection("exercise").document(exerciseKeys[index])
+                .delete()
         exerciseList.removeAt(index)
         exerciseKeys.removeAt(index)
+        nameToKey.remove(exName)
         notifyItemRemoved(index)
     }
 
     fun removeExerciseByKey(id: String){
-
-
+        val index = exerciseKeys.indexOf(id)
+        val exercise = exerciseList[index]
+        if (index != -1) {
+            db.collection("users").document(curUser!!.uid)
+                    .collection("DayData").document(DateActivity().getDate().toString())
+                    .collection("workout").document(workoutID)
+                    .collection("exercise").document(id)
+                    .delete()
+            exerciseList.removeAt(index)
+            exerciseKeys.removeAt(index)
+            nameToKey.remove(exercise.name)
+            notifyItemRemoved(index)
+        }
     }
 
     fun editExercise(exercise: Exercise, id: String){
+        val index = exerciseKeys.indexOf(id)
+        val oldWorkout = exerciseList[index]
+//        val id = nameToKey[oldWorkout.name]
+        nameToKey.remove(oldWorkout.name)
+        if (index != -1){
+            exerciseList[index].name = exercise.name
+            exerciseList[index].muscleGroup = exercise.muscleGroup
+            exerciseList[index].set = exercise.set
+            exerciseList[index].rep = exercise.rep
+            exerciseList[index].weight = exercise.weight
+            nameToKey.put(exercise.name, id)
+            notifyItemChanged(index)
+        }
+    }
 
+    fun setWorkoutID(id: String){
+        workoutID = id
     }
 }

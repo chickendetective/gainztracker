@@ -111,12 +111,12 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
     fun editWorkout(workout: Workout, key: String) {
         val index = workoutKeys.indexOf(key)
         val oldWorkout = workoutsList[index]
-        val id = nameToKey[oldWorkout.name]
+        //val id = nameToKey[oldWorkout.name]
         nameToKey.remove(oldWorkout.name)
         if (index != -1){
             workoutsList[index].name = workout.name
             workoutsList[index].type = workout.type
-            nameToKey.put(workout.name, id!!)
+            nameToKey.put(workout.name, key)
             notifyItemChanged(index)
         }
     }
