@@ -1,6 +1,7 @@
 package hu.ait.android.gainztracker.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -8,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
+import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.workout_card.view.*
 
@@ -18,6 +21,9 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
 
     private var workoutsList = mutableListOf<Workout>()
     private var workoutKeys = mutableListOf<String>()
+    private var nameToKey : MutableMap<String, String> = HashMap()
+    private var curUser = FirebaseAuth.getInstance().currentUser
+    private var curDate = DateActivity().getDate().toString()
 
     private var lastPosition = -1
 
@@ -25,6 +31,7 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         val view = LayoutInflater.from(parent.context).inflate(
                 R.layout.workout_card, parent, false
         )
+
         return ViewHolder(view)
     }
 
@@ -50,6 +57,14 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         holder.btnDelete.setOnClickListener {
             removeWorkout(holder.adapterPosition)
         }
+
+        holder.itemView.setOnClickListener{
+            //            Toast.makeText(context, "BUY THIS!", Toast.LENGTH_LONG).show()
+            val intentStart = Intent(context, WorkoutActivity::class.java)
+            val workoutName = holder.itemView.tvName.toString()
+            intentStart.putExtra("WORKOUTID", nameToKey[workoutName]) //TODO: change to workout ID
+            context.startActivity(intentStart)
+        }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -63,32 +78,45 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
     fun addWorkout(workout: Workout, key: String) {
         workoutsList.add(workout)
         workoutKeys.add(key)
+        nameToKey[workout.name] =  key
         notifyDataSetChanged()
     }
 
     private fun removeWorkout(index: Int) {
-        FirebaseFirestore.getInstance().collection("workouts").document(
+        FirebaseFirestore.getInstance().collection("users").document(curUser!!.uid).
+            collection("DayData").document(curDate).collection("workouts").document(
                 workoutKeys[index]
         ).delete()
-
+        val name = workoutsList[index].name
         workoutsList.removeAt(index)
         workoutKeys.removeAt(index)
+        nameToKey.remove(name)
         notifyItemRemoved(index)
     }
     fun removeWorkoutByKey(key: String) {
         val index = workoutKeys.indexOf(key)
+        val workout = workoutsList[index]
         if (index != -1) {
+            FirebaseFirestore.getInstance().collection("users").document(curUser!!.uid).
+                collection("DayData").document(curDate).collection("workouts").document(
+                key
+            ).delete()
             workoutsList.removeAt(index)
             workoutKeys.removeAt(index)
+            nameToKey.remove(workout.name)
             notifyItemRemoved(index)
         }
     }
 
     fun editWorkout(workout: Workout, key: String) {
         val index = workoutKeys.indexOf(key)
+        val oldWorkout = workoutsList[index]
+        val id = nameToKey[oldWorkout.name]
+        nameToKey.remove(oldWorkout.name)
         if (index != -1){
             workoutsList[index].name = workout.name
             workoutsList[index].type = workout.type
+            nameToKey.put(workout.name, id!!)
             notifyItemChanged(index)
         }
     }

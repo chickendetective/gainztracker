@@ -27,6 +27,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
     private var curDate = Calendar.getInstance().time
 
     companion object {
+
         val KEY_ITEM_TO_EDIT = "KEY_ITEM_TO_EDIT"
     }
     private var editIndex: Int = 0
@@ -144,5 +145,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.ItemHandler {
                     }.start()
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+    }
+
+    fun getDate(): Any {
+        return curDate
     }
 }
