@@ -37,9 +37,9 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
 
         holder.tvExerciseName.text = exercise.name
         holder.tvMuscleGroup.text = exercise.muscleGroup
-        holder.tvSet.text = "Sets Left: " + exercise.set.toString()
-        holder.tvRep.text = "Reps: " + exercise.rep.toString()
-        holder.tvWeight.text = "Weight: " + exercise.weight.toString()
+        holder.tvSet.text = context.getString(R.string.sets_left) + exercise.set.toString()
+        holder.tvRep.text = context.getString(R.string.cur_reps) + exercise.rep.toString()
+        holder.tvWeight.text = context.getString(R.string.cur_weight) + exercise.weight.toString()
 
         when {
             exercise.muscleGroup == R.string.upper_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
@@ -87,5 +87,15 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
         exerciseList.removeAt(index)
         exerciseKeys.removeAt(index)
         notifyItemRemoved(index)
+    }
+
+    fun removeExerciseByKey(id: String){
+
+
+    }
+
+    fun editExercise(exercise: Exercise, id: String){
+
+        
     }
 }
