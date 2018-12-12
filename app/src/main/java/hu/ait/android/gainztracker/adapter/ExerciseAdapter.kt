@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.firestore.FirebaseFirestore
 import hu.ait.android.gainztracker.R
+import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Exercise
 import kotlinx.android.synthetic.main.exercise_card.view.*
 
@@ -42,7 +43,18 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
             exercise.muscleGroup == R.string.lower_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
             exercise.muscleGroup == R.string.core.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
         }
+        holder.btnDeleteExercise.setOnClickListener {
+            removeExercise(holder.adapterPosition)
+        }
+        holder.btnEditExercise.setOnClickListener {
+            (context as WorkoutActivity).showEditExerciseDialog(exercise,holder.adapterPosition)
+        }
+        holder.btnAddSet.setOnClickListener {
 
+        }
+        holder.btnLogSet.setOnClickListener {
+
+        }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -51,8 +63,11 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
         val tvSet : TextView = itemView.tvSet
         val tvRep : TextView = itemView.tvRep
         val tvWeight: TextView = itemView.tvWeight
-        val btnDelete: Button = itemView.btnDeleteExercise
         val ivMuscleGroupIcon: ImageView = itemView.ivMuscleGroupIcon
+        val btnDeleteExercise: Button = itemView.btnDeleteExercise
+        val btnEditExercise: Button = itemView.btnEditExercise
+        val btnLogSet: Button = itemView.btnLogSet
+        val btnAddSet: Button = itemView.btnAddSet
     }
 
     fun addExercise(exercise : Exercise, key: String) {

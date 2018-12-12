@@ -47,18 +47,18 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         }
 
     }
-
+    //STILL NEEDS WORK
     private fun initExerciseRecyclerView() {
         //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
         data.put("lastLogin", Calendar.getInstance().time)
         db.collection("users").document(curUser!!.uid).collection("DayData")
                 .document(curDate.toString()).set(data, SetOptions.merge())
-        val workoutsCollection = db.collection("users").document(curUser!!.uid)
+        val exercisesCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout") //create a subcollection for all the workouts
+                .collection("workout").document() //create a subcollection for all the execises (still need specific document
 
-        exerciseListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
+        exerciseListener = exercisesCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
             override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
 
                 if(p1 != null){
@@ -87,17 +87,17 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         })
     }
 
-    private fun showAddWorkoutDialog() {
-        WorkoutDialog().show(supportFragmentManager,
+    private fun showAddExerciseDialog() {
+        ExerciseDialog().show(supportFragmentManager,
                 "TAG_CREATE")
     }
 
-    fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
+    fun showEditExerciseDialog(exerciseToEdit: Exercise, idx: Int) {
         editIndex = idx
-        val editItemDialog = WorkoutDialog()
+        val editItemDialog = ExerciseDialog()
 
         val bundle = Bundle()
-        bundle.putSerializable(KEY_EXERCISE_TO_EDIT, workoutToEdit)
+        bundle.putSerializable(KEY_EXERCISE_TO_EDIT, exerciseToEdit)
         editItemDialog.arguments = bundle
 
         editItemDialog.show(supportFragmentManager,
@@ -105,14 +105,17 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseCreated(exercise: Exercise) {
-        //add workout to firebase
+        //add exercise to firebase
         val data = HashMap<String, Any>()
         data.put("name", exercise.name)
-        data.put("workoutType", exercise.type)
-        data.put("numExercise", 0)
+        data.put("muscleGroup", exercise.muscleGroup)
+        data.put("sets", exercise.set)
+        data.put("reps", exercise.rep)
+        data.put("weight", exercise.weight)
         db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document()
+                //FIX PATH^^^
                 .add(data)
                 .addOnSuccessListener { documentReference ->
                     Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
@@ -130,11 +133,11 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     override fun exerciseUpdated(exercise: Exercise) {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
-        val workoutRef = db.collection("users").document(curUser!!.uid)
+        val exerciseRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(exercise.id!!)
 
-        workoutRef
+        exerciseRef
                 .update("name", exercise.name, "type", exercise.type, "numExercise", exercise.exercises.size)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")

@@ -71,7 +71,7 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
         val tvName: TextView = itemView.tvName
         val tvType: TextView = itemView.tvType
         val btnDelete: Button = itemView.btnDelete
-        val btnEdit: Button = itemView.btnEdit
+        val btnEdit: Button = itemView.btnEditExercise
         val ivTypeIcon: ImageView = itemView.ivTypeIcon
     }
 

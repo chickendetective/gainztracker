@@ -10,11 +10,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import hu.ait.android.gainztracker.adapter.ExerciseAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.dialog_exercise.view.*
 import kotlinx.android.synthetic.main.dialog_workout.*
 import kotlinx.android.synthetic.main.dialog_workout.view.*
+import kotlinx.android.synthetic.main.exercise_card.*
 import java.lang.RuntimeException
 
 class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
@@ -69,7 +71,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
             builder.setTitle("Edit Exercise") }
 
         builder.setPositiveButton("OK") {
-                dialog, witch -> // empty
+                dialog, witch ->
         }
 
         builder.setNegativeButton("Cancel"){
@@ -139,9 +141,9 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         if (etExerciseName.text.isNotEmpty()) {
             val arguments = this.arguments
             if (arguments != null && arguments.containsKey(WorkoutActivity.KEY_EXERCISE_TO_EDIT)) {
-                handleItemEdit()
+                handleExerciseEdit()
             } else {
-                handleItemCreate()
+                handleExerciseCreate()
             }
 
             dialog.dismiss()
@@ -150,7 +152,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         }
     }
 
-    private fun handleItemCreate() {
+    private fun handleExerciseCreate() {
         //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
         exerciseHandler.exerciseCreated(
             Exercise("",
@@ -163,7 +165,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         )
     }
 
-    private fun handleItemEdit() {
+    private fun handleExerciseEdit() {
         val itemToEdit = arguments?.getSerializable(
             WorkoutActivity.KEY_EXERCISE_TO_EDIT
         ) as Exercise

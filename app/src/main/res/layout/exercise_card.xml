@@ -28,7 +28,7 @@
             android:textColor="#ffffff"
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toStartOf="@+id/btnAddSet"
-            card_view:layout_constraintStart_toEndOf="@+id/btnEdit" />
+            card_view:layout_constraintStart_toEndOf="@+id/btnEditExercise" />
 
         <Button
             android:id="@+id/btnAddSet"
@@ -80,20 +80,18 @@
                 card_view:srcCompat="@drawable/upperbody_exercise_icon"/>
 
         <TextView
-            android:id="@+id/tvExerciseName"
-            android:layout_width="175dp"
-            android:layout_height="31dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Bench Press"
-            android:textColor="#7cfc00"
-            android:textSize="24sp"
-            card_view:layout_constraintStart_toEndOf="@+id/ivTypeIcon"
-            card_view:layout_constraintTop_toTopOf="parent" />
+                android:id="@+id/tvExerciseName"
+                android:layout_width="175dp"
+                android:layout_height="31dp"
+                android:text="Bench Press"
+                android:textColor="#7cfc00"
+                android:textSize="24sp"
+                android:layout_marginTop="8dp" card_view:layout_constraintTop_toTopOf="parent"
+                card_view:layout_constraintStart_toEndOf="@+id/ivMuscleGroupIcon" android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"/>
 
         <Button
-            android:id="@+id/btnEdit"
+            android:id="@+id/btnEditExercise"
             android:layout_width="75dp"
             android:layout_height="36dp"
             android:layout_marginBottom="8dp"
@@ -120,7 +118,7 @@
             android:textColor="#7cfc00"
             android:textSize="18sp"
             android:textStyle="bold"
-            card_view:layout_constraintBottom_toTopOf="@+id/btnEdit"
+            card_view:layout_constraintBottom_toTopOf="@+id/btnEditExercise"
             card_view:layout_constraintEnd_toStartOf="@+id/tvRep"
             card_view:layout_constraintStart_toStartOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/ivTypeIcon" />
