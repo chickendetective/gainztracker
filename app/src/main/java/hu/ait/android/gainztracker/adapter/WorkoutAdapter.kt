@@ -3,6 +3,7 @@ package hu.ait.android.gainztracker.adapter
 import android.content.Context
 import android.content.Intent
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -92,9 +93,16 @@ class WorkoutAdapter : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>, ItemTouc
 
     fun addWorkout(workout: Workout, key: String) {
         workoutsList.add(workout)
+        Log.d("ADDED", workoutsList.toString())
         workoutKeys.add(key)
         nameToKey[workout.name] =  key
-        notifyDataSetChanged()
+        Thread {
+            (context as DateActivity).runOnUiThread {
+                notifyDataSetChanged()
+            }
+        }.start()
+        notifyItemInserted(0)
+        //notifyDataSetChanged()
     }
 
     private fun removeWorkout(index: Int) {

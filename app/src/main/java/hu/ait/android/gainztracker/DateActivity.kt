@@ -36,6 +36,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     val db = FirebaseFirestore.getInstance()
 
+    val date = SimpleDateFormat("dd/MM/yyyy")
+
     private var curUser = FirebaseAuth.getInstance().currentUser
 
     private var curDate = Calendar.getInstance().time
@@ -59,7 +61,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             Log.d("INTENT CHECKING", intent.getStringExtra(MainActivity.KEY_DATE))
             //tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
             curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE).toLong())
-            val date = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS")
             tvDay.text = date.format(curDate.time)
         }
 
@@ -100,7 +101,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val data = HashMap<String, Any>()
         data.put("lastLogin", Calendar.getInstance().time)
         db.collection("users").document(curUser!!.uid).collection("DayData")
-                .document(curDate.toString()).set(data, SetOptions.merge())
+                .document(date.format(curDate.time)).set(data, SetOptions.merge())
         val workoutsCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout") //create a subcollection for all the workouts if not yet there
@@ -185,7 +186,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         data.put("workoutType", workout.type)
         data.put("numExercise", 0)
         db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(date.format(curDate.time))
                 .collection("workout").add(data)
                 .addOnSuccessListener { documentReference ->
                     Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
@@ -204,7 +205,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     override fun workoutUpdated(workout: Workout) {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
         val workoutRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(date.format(curDate.time))
                 .collection("workout").document(workout.id!!)
 
         workoutRef
