@@ -4,6 +4,7 @@ import android.content.Intent
 import java.util.Calendar
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -27,12 +28,14 @@ class MainActivity : AppCompatActivity() {
         val data = HashMap<String, Any?>()
         data.put("userName", userName)
         data.put("lastLogin", Calendar.getInstance().time)
+        Log.d("LOGGEDIN", curUser.toString())
         db.collection("users").document(curUser!!.uid).set(data, SetOptions.merge())
 
         btnSelect.setOnClickListener {
             val dateSelected = calendar.date
+            Log.d("DATE SELECTED", dateSelected.toString())
             val detailIntent = Intent(this@MainActivity, DateActivity::class.java)
-            detailIntent.putExtra(KEY_DATE, dateSelected)
+            detailIntent.putExtra(KEY_DATE, dateSelected.toString())
             startActivity(detailIntent)
         }
     }

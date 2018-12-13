@@ -46,8 +46,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         setContentView(R.layout.activity_date)
 
         if (intent.hasExtra(MainActivity.KEY_DATE)) {
+            Log.d("INTENT CHECKING", intent.getStringExtra(MainActivity.KEY_DATE))
             tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
-            curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE))
+            curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE).toLong())
         }
 
         initWorkoutRecyclerView()
@@ -55,8 +56,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             showAddWorkoutDialog()
         }
 
-        btnRecordGainz.setOnClickListener{
-            val gainzIntent = Intent(this@DateActivity, DateActivity::class.java)
+        btnViewGainz.setOnClickListener{
+            val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
             startActivity(gainzIntent)
             /*startActivityForResult(
                     Intent(MediaStore.ACTION_IMAGE_CAPTURE),
@@ -160,7 +161,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val editItemDialog = WorkoutDialog()
 
         val bundle = Bundle()
-        bundle.putSerializable(KEY_WORKOUT_TO_EDIT, workoutToEdit)
+        bundle.put(KEY_WORKOUT_TO_EDIT, workoutToEdit)
         editItemDialog.arguments = bundle
 
         editItemDialog.show(supportFragmentManager,
