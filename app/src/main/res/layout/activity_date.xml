@@ -13,7 +13,7 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/recyclerWorkout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="444dp"
             android:padding="20dp"
             android:scrollbars="vertical"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
