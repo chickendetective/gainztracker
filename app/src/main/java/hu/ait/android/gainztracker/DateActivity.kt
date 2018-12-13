@@ -4,27 +4,33 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.View
 import android.widget.Toast
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.storage.FirebaseStorage
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
-import kotlinx.android.synthetic.main.activity_main.*
+import java.io.ByteArrayOutputStream
+import java.net.URLEncoder
 import java.util.*
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     private lateinit var workoutAdapter: WorkoutAdapter
     private lateinit var workoutListener: ListenerRegistration
+
+    var uploadBitmap : Bitmap? = null
 
     val db = FirebaseFirestore.getInstance()
 
@@ -34,8 +40,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     companion object {
         val WORKOUT_ID = "WORKOUT_ID"
-
         val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT"
+        val KEY_VIEW_GAINZ = "KEY_VIEW_GAINZ"
         private const val CAMERA_REQUEST_CODE = 102
     }
     private var editIndex: Int = 0
@@ -57,15 +63,57 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         }
 
         btnViewGainz.setOnClickListener{
-            val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
-            startActivity(gainzIntent)
-            /*startActivityForResult(
-                    Intent(MediaStore.ACTION_IMAGE_CAPTURE),
-                    CAMERA_REQUEST_CODE)*/
+            /*if firebase has an imgUrl saved, do below
+             */
+            if() {
+                val imgUrl: String =
+                val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
+                gainzIntent.putExtra(KEY_VIEW_GAINZ, imgUrl)
+                startActivity(gainzIntent)
+            }else{
+                Toast.makeText(this,
+                        "No Gainz Saved, Please Record Gainz", Toast.LENGTH_SHORT).show()
+            }
         }
 
+        btnRecordGainz.setOnClickListener {
+            startActivityForResult(
+                    Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+                    CAMERA_REQUEST_CODE)
+        }
+        btnRecordGainz.isEnabled = false
         requestNeededPermission()
 
+    }
+
+    @Throws(Exception::class)
+    private fun saveImage(){
+        val baos = ByteArrayOutputStream()
+        uploadBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val imageInBytes = baos.toByteArray()
+
+        val storageRef = FirebaseStorage.getInstance().getReference()
+        val newImage = URLEncoder.encode(UUID.randomUUID().toString(), "UTF-8") + ".jpg"
+        val newImagesRef = storageRef.child("images/$newImage")
+
+        newImagesRef.putBytes(imageInBytes)
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this@DateActivity, exception.message, Toast.LENGTH_SHORT).show()
+                }.addOnSuccessListener { taskSnapshot ->
+                    taskSnapshot.getMetadata()
+
+                    newImagesRef.downloadUrl.addOnCompleteListener(object: OnCompleteListener<Uri> {
+                        override fun onComplete(task: Task<Uri>) {
+                            /*task.result.toString()
+                            *
+                            * ADD THIS^^^ TO DATE FOR FIREBASE
+                            *
+                            * */
+                            db.collection("users").document(curUser!!.uid)
+                                    .collection("DayData").
+                        }
+                    })
+                }
     }
 
     private fun requestNeededPermission() {
@@ -106,8 +154,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
             data?.let {
-                val uploadBitmap = it.extras.get("data") as Bitmap
-                Toast.makeText(this, "bitmap ok", Toast.LENGTH_LONG).show()
+                uploadBitmap = it.extras.get("data") as Bitmap
+                saveImage()
             }
         }
     }
