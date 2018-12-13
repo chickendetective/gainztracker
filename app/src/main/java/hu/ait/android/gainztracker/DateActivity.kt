@@ -86,6 +86,107 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     }
 
+    private fun initWorkoutRecyclerView() {
+        //create a document for current date if hasnt existed
+        val data = HashMap<String, Any>()
+        data.put("lastLogin", Calendar.getInstance().time)
+        db.collection("users").document(curUser!!.uid).collection("DayData")
+                .document(curDate.toString()).set(data, SetOptions.merge())
+        val workoutsCollection = db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(curDate.toString())
+                .collection("workout") //create a subcollection for all the workouts
+
+        workoutListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
+            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
+
+                if(p1 != null){
+                    Toast.makeText(this@DateActivity,"Error: ${p1.message}",
+                            Toast.LENGTH_LONG).show()
+                    return
+                }
+
+                for (docChange in querySnapshot!!.documentChanges) {
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED -> {
+                            val workout = docChange.document.toObject(Workout::class.java)
+                            workoutAdapter.addWorkout(workout, docChange.document.id)
+                        }
+                        DocumentChange.Type.MODIFIED -> {
+                            val workout = docChange.document.toObject(Workout::class.java)
+                            workoutAdapter.editWorkout(workout, docChange.document.id)
+                        }
+                        DocumentChange.Type.REMOVED -> {
+                            workoutAdapter.removeWorkoutByKey(docChange.document.id)
+                        }
+                    }
+                }
+
+            }
+        })
+    }
+
+    private fun showAddWorkoutDialog() {
+        WorkoutDialog().show(supportFragmentManager,
+                "TAG_CREATE")
+    }
+
+    fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
+        editIndex = idx
+        val editWorkoutDialog = WorkoutDialog()
+
+        val bundle = Bundle()
+        bundle.put(KEY_WORKOUT_TO_EDIT, workoutToEdit)
+        editWorkoutDialog.arguments = bundle
+
+        editWorkoutDialog.show(supportFragmentManager,
+                "EDITITEMDIALOG")
+    }
+
+    override fun workoutCreated(workout: Workout) {
+        //add workout to firebase
+        val data = HashMap<String, Any>()
+        data.put("name", workout.name)
+        data.put("workoutType", workout.type)
+        data.put("numExercise", 0)
+        db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(curDate.toString())
+                .collection("workout").add(data)
+                .addOnSuccessListener { documentReference ->
+                    Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
+                    workout.id = documentReference.id
+                    Thread {
+                        runOnUiThread {
+                            workoutAdapter.addWorkout(workout, documentReference.id)
+                        }
+                    }.start()
+                }
+                .addOnFailureListener { e ->
+                    Log.w("TAG", "Error adding document", e)
+                }
+    }
+
+    override fun workoutUpdated(workout: Workout) {
+        //update workout in firebase - either using id or index through the keylist in adapter to find it
+        val workoutRef = db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(curDate.toString())
+                .collection("workout").document(workout.id!!)
+
+        workoutRef
+                .update("name", workout.name, "type", workout.type, "numExercise", workout.exercises.size)
+                .addOnSuccessListener {
+                    Log.d("TAG", "DocumentSnapshot successfully updated!")
+                    Thread {
+                        runOnUiThread {
+                            workoutAdapter.editWorkout(workout, workout.id!!)
+                        }
+                    }.start()
+                }
+                .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+    }
+
+    fun getDate(): Any {
+        return curDate
+    }
     @Throws(Exception::class)
     private fun saveImage(){
         val baos = ByteArrayOutputStream()
@@ -158,107 +259,5 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 saveImage()
             }
         }
-    }
-
-    private fun initWorkoutRecyclerView() {
-        //create a document for current date if hasnt existed
-        val data = HashMap<String, Any>()
-        data.put("lastLogin", Calendar.getInstance().time)
-        db.collection("users").document(curUser!!.uid).collection("DayData")
-                .document(curDate.toString()).set(data, SetOptions.merge())
-        val workoutsCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
-                .collection("workout") //create a subcollection for all the workouts
-
-        workoutListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
-            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
-
-                if(p1 != null){
-                    Toast.makeText(this@DateActivity,"Error: ${p1.message}",
-                            Toast.LENGTH_LONG).show()
-                    return
-                }
-
-                for (docChange in querySnapshot!!.documentChanges) {
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
-                            workoutAdapter.addWorkout(workout, docChange.document.id)
-                        }
-                        DocumentChange.Type.MODIFIED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
-                            workoutAdapter.editWorkout(workout, docChange.document.id)
-                        }
-                        DocumentChange.Type.REMOVED -> {
-                            workoutAdapter.removeWorkoutByKey(docChange.document.id)
-                        }
-                    }
-                }
-
-            }
-        })
-    }
-
-    private fun showAddWorkoutDialog() {
-        WorkoutDialog().show(supportFragmentManager,
-                "TAG_CREATE")
-    }
-
-    fun showEditWorkoutDialog(workoutToEdit: Workout, idx: Int) {
-        editIndex = idx
-        val editItemDialog = WorkoutDialog()
-
-        val bundle = Bundle()
-        bundle.put(KEY_WORKOUT_TO_EDIT, workoutToEdit)
-        editItemDialog.arguments = bundle
-
-        editItemDialog.show(supportFragmentManager,
-                "EDITITEMDIALOG")
-    }
-
-    override fun workoutCreated(workout: Workout) {
-        //add workout to firebase
-        val data = HashMap<String, Any>()
-        data.put("name", workout.name)
-        data.put("workoutType", workout.type)
-        data.put("numExercise", 0)
-        db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
-                .collection("workout").add(data)
-                .addOnSuccessListener { documentReference ->
-                    Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
-                    workout.id = documentReference.id
-                    Thread {
-                        runOnUiThread {
-                            workoutAdapter.addWorkout(workout, documentReference.id)
-                        }
-                    }.start()
-                }
-                .addOnFailureListener { e ->
-                    Log.w("TAG", "Error adding document", e)
-                }
-    }
-
-    override fun workoutUpdated(workout: Workout) {
-        //update workout in firebase - either using id or index through the keylist in adapter to find it
-        val workoutRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
-                .collection("workout").document(workout.id!!)
-
-        workoutRef
-                .update("name", workout.name, "type", workout.type, "numExercise", workout.exercises.size)
-                .addOnSuccessListener {
-                    Log.d("TAG", "DocumentSnapshot successfully updated!")
-                    Thread {
-                        runOnUiThread {
-                            workoutAdapter.editWorkout(workout, workout.id!!)
-                        }
-                    }.start()
-                }
-                .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
-    }
-
-    fun getDate(): Any {
-        return curDate
     }
 }
