@@ -150,11 +150,13 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseCreated(exercise: Exercise) {
-        val sets = SetData(exercise.set, exercise.rep, exercise.weight)
+        //val sets = SetData(exercise.set, exercise.rep, exercise.weight)
         val data = HashMap<String, Any>()
         data.put("name", exercise.name)
         data.put("muscleGroup", exercise.muscleGroup)
-        data.put("sets", sets)
+        data.put("set", exercise.set)
+        data.put("reps", exercise.rep)
+        data.put("weight", exercise.weight)
 
         db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
@@ -182,11 +184,9 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                 .collection("workout").document(workoutID)
                 .collection("exercise").document(exercise.id!!)
 
-        val sets = SetData(exercise.set, exercise.rep, exercise.weight)
-
         exerciseRef
                 .update("name", exercise.name, "muscleGroup", exercise.muscleGroup,
-                        "sets", sets)
+                        "set", exercise.set, "reps", exercise.rep, "weight", exercise.weight)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                     Thread {

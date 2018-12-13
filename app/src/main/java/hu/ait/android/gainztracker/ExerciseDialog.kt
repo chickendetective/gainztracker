@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -90,7 +91,6 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         etRep.setText(item.rep.toString())
         etWeight.setText(item.weight.toString())
 
-
     }
 
     private fun rootViewSetter(builder: AlertDialog.Builder): View {
@@ -154,6 +154,14 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     private fun handleExerciseCreate() {
         //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
+        val exercise = Exercise("",
+                etExerciseName.text.toString(),
+                ssMuscleGroup.selectedItem.toString(),
+                etSet.text.toString().toInt(),
+                etRep.text.toString().toInt(),
+                etWeight.text.toString().toDouble()
+        )
+        Log.d("EXERCISE", exercise.toString())
         exerciseHandler.exerciseCreated(
             Exercise("",
                     etExerciseName.text.toString(),
@@ -163,6 +171,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
                     etWeight.text.toString().toDouble()
                     )
         )
+
     }
 
     private fun handleExerciseEdit() {
