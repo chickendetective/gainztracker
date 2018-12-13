@@ -23,6 +23,7 @@ import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
 import java.io.ByteArrayOutputStream
 import java.net.URLEncoder
+import java.text.SimpleDateFormat
 import java.util.*
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
@@ -53,8 +54,10 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
         if (intent.hasExtra(MainActivity.KEY_DATE)) {
             Log.d("INTENT CHECKING", intent.getStringExtra(MainActivity.KEY_DATE))
-            tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
+            //tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
             curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE).toLong())
+            val date = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS")
+            tvDay.text = date.format(curDate.time)
         }
 
         initWorkoutRecyclerView()
@@ -62,9 +65,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             showAddWorkoutDialog()
         }
 
-        btnViewGainz.setOnClickListener{
-            /*if firebase has an imgUrl saved, do below
-             */
+        /*btnViewGainz.setOnClickListener{
+            *//*if firebase has an imgUrl saved, do below
+             *//*
             if() {
                 val imgUrl: String =
                 val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
@@ -74,7 +77,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 Toast.makeText(this,
                         "No Gainz Saved, Please Record Gainz", Toast.LENGTH_SHORT).show()
             }
-        }
+        }*/
 
         btnRecordGainz.setOnClickListener {
             startActivityForResult(
@@ -135,7 +138,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val editWorkoutDialog = WorkoutDialog()
 
         val bundle = Bundle()
-        bundle.put(KEY_WORKOUT_TO_EDIT, workoutToEdit)
+        bundle.putSerializable(KEY_WORKOUT_TO_EDIT, workoutToEdit)
         editWorkoutDialog.arguments = bundle
 
         editWorkoutDialog.show(supportFragmentManager,
@@ -210,8 +213,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                             * ADD THIS^^^ TO DATE FOR FIREBASE
                             *
                             * */
-                            db.collection("users").document(curUser!!.uid)
-                                    .collection("DayData").
+                            /*db.collection("users").document(curUser!!.uid)
+                                    .collection("DayData").*/
                         }
                     })
                 }
