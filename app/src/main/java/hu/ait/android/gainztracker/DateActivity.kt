@@ -36,7 +36,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     val db = FirebaseFirestore.getInstance()
 
-    val date = SimpleDateFormat("dd/MM/yyyy")
+    val date = SimpleDateFormat("dd-MM-yyyy")
 
     private var curUser = FirebaseAuth.getInstance().currentUser
 
@@ -103,7 +103,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         db.collection("users").document(curUser!!.uid).collection("DayData")
                 .document(date.format(curDate.time)).set(data, SetOptions.merge())
         val workoutsCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(date.format(curDate.time))
                 .collection("workout") //create a subcollection for all the workouts if not yet there
 
         val workoutList  = mutableListOf<Workout>()
@@ -184,7 +184,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val data = HashMap<String, Any>()
         data.put("name", workout.name)
         data.put("workoutType", workout.type)
-        data.put("numExercise", 0)
         db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(date.format(curDate.time))
                 .collection("workout").add(data)
@@ -222,7 +221,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     }
 
     fun getDate(): Any {
-        return curDate
+        return date.format(curDate.time)
     }
     @Throws(Exception::class)
     private fun saveImage(){

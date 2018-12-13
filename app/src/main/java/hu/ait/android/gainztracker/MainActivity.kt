@@ -5,6 +5,7 @@ import java.util.Calendar
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.CalendarView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -31,12 +32,25 @@ class MainActivity : AppCompatActivity() {
         Log.d("LOGGEDIN", curUser.toString())
         db.collection("users").document(curUser!!.uid).set(data, SetOptions.merge())
 
-        btnSelect.setOnClickListener {
-            val dateSelected = calendar.date
-            Log.d("DATE SELECTED", dateSelected.toString())
-            val detailIntent = Intent(this@MainActivity, DateActivity::class.java)
-            detailIntent.putExtra(KEY_DATE, dateSelected.toString())
-            startActivity(detailIntent)
+//        calendar.setOnDateChangeListener{
+//
+//            @Override
+//            public fun onSelectedDayChange(CalendarView view, int year, int month,
+//                    int dayOfMonth) {
+//                Intent k = new Intent(GlavnaAktivnost.this, DatumDetalji.class);
+//                k.putExtra("godina", year);
+//                k.putExtra("mesec", month);
+//                k.putExtra("dan", dayOfMonth);
+//                startActivity(k);
+//
+//            }
+
+            btnSelect.setOnClickListener {
+                val dateSelected = calendar.date
+                Log.d("DATE SELECTED", dateSelected.toString())
+                val detailIntent = Intent(this@MainActivity, DateActivity::class.java)
+                detailIntent.putExtra(KEY_DATE, dateSelected.toString())
+                startActivity(detailIntent)
+            }
         }
-    }
 }

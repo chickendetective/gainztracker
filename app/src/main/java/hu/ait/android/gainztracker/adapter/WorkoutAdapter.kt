@@ -92,8 +92,9 @@ class WorkoutAdapter : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>, ItemTouc
     }
 
     fun addWorkout(workout: Workout, key: String) {
-        workoutsList.add(workout)
+        workoutsList.add(0, workout)
         Log.d("ADDED", workoutsList.toString())
+        Log.d("Current Date", curDate)
         workoutKeys.add(key)
         nameToKey[workout.name] =  key
         Thread {
