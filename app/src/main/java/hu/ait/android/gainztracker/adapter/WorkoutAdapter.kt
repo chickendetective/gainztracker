@@ -15,9 +15,17 @@ import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Workout
+import hu.ait.android.gainztracker.touch.ItemTouchHelperAdapter
 import kotlinx.android.synthetic.main.workout_card.view.*
 
-class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>() {
+class WorkoutAdapter : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>, ItemTouchHelperAdapter {
+    override fun onDismiss(position: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private var workoutsList = mutableListOf<Workout>()
     private var workoutKeys = mutableListOf<String>()
@@ -25,7 +33,14 @@ class WorkoutAdapter(var context: Context, var uid: String) : RecyclerView.Adapt
     private var curUser = FirebaseAuth.getInstance().currentUser
     private var curDate = DateActivity().getDate().toString()
 
+    val context : Context
+
     private var lastPosition = -1
+
+    constructor(context: Context, itemList: List<Workout>) : super() {
+        this.context = context
+        this.workoutsList.addAll(itemList)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(

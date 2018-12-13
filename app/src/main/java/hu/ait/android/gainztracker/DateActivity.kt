@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
+import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,7 +36,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     companion object {
         val WORKOUT_ID = "WORKOUT_ID"
 
-        val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT"
+        val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT_NAME"
+        val KEY_WORKOUT_TO_EDIT_TYPE = "KEY_WORKOUT_TO_EDIT_TYPE"
+        val KEY_WORKOUT_TO_EDIT_ID = "KEY_WORKOUT_TO_EDIT_ID"
         private const val CAMERA_REQUEST_CODE = 102
     }
     private var editIndex: Int = 0
@@ -120,9 +123,34 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 .document(curDate.toString()).set(data, SetOptions.merge())
         val workoutsCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
-                .collection("workout") //create a subcollection for all the workouts
+                .collection("workout") //create a subcollection for all the workouts if not yet there
 
-        workoutListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
+        val workoutList  = mutableListOf<Workout>()
+        workoutsCollection.get()
+                .addOnSuccessListener { result ->
+            for (document in result) {
+                val workout = Workout(document.get("id").toString(),
+                        document.get("name").toString(), document.get("type").toString())
+                workoutList.add(workout)
+            }
+        }
+                .addOnFailureListener { exception ->
+                    Log.d("TAG", "Error getting documents: ", exception)
+                }
+
+        workoutAdapter = WorkoutAdapter(this@DateActivity, workoutList)
+//        Thread {
+//            val itemList = AppDatabase.getInstance(
+//                    this@ScrollingActivity
+//            ).shoppingDao().findAllItems()
+//
+//            itemAdapter = ShoppingAdapter(
+//                    this@ScrollingActivity,
+//                    itemList
+//            )
+
+
+            workoutListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
             override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
 
                 if(p1 != null){
@@ -161,7 +189,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val editItemDialog = WorkoutDialog()
 
         val bundle = Bundle()
-        bundle.put(KEY_WORKOUT_TO_EDIT, workoutToEdit)
+        bundle.putString(KEY_WORKOUT_TO_EDIT, workoutToEdit.name)
+        bundle.putString(KEY_WORKOUT_TO_EDIT_TYPE, workoutToEdit.type)
+        bundle.putString(KEY_WORKOUT_TO_EDIT_ID, workoutToEdit.id)
         editItemDialog.arguments = bundle
 
         editItemDialog.show(supportFragmentManager,
@@ -198,7 +228,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 .collection("workout").document(workout.id!!)
 
         workoutRef
-                .update("name", workout.name, "type", workout.type, "numExercise", workout.exercises.size)
+                .update("name", workout.name, "type", workout.type)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                     Thread {

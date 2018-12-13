@@ -73,11 +73,9 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun setItem(arguments: Bundle, adapter: ArrayAdapter<String>) {
-        val item = arguments.getSerializable(
-            DateActivity.KEY_WORKOUT_TO_EDIT
-        )  as Workout
-        etWorkoutName.setText(item.name)
-        ssCategory.setSelection(adapter.getPosition(item.type))
+        val itemName = arguments.getString(DateActivity.KEY_WORKOUT_TO_EDIT)
+        etWorkoutName.setText(itemName)
+        ssCategory.setSelection(adapter.getPosition(arguments.getString(DateActivity.KEY_WORKOUT_TO_EDIT_TYPE)))
     }
 
     private fun rootViewSetter(builder: AlertDialog.Builder): View {
@@ -139,16 +137,15 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         workoutHandler.workoutCreated(
             Workout("",
                 etWorkoutName.text.toString(),
-                ssCategory.selectedItem.toString(),
-                ArrayList(0)
+                ssCategory.selectedItem.toString()
             )
         )
     }
 
     private fun handleItemEdit() {
-        val workoutToEdit = arguments?.getSerializable(
-            DateActivity.KEY_WORKOUT_TO_EDIT
-        ) as Workout
+        val workoutToEdit = Workout(arguments!!.getString(DateActivity.KEY_WORKOUT_TO_EDIT_ID),
+                arguments!!.getString(DateActivity.KEY_WORKOUT_TO_EDIT),
+                arguments!!.getString(DateActivity.KEY_WORKOUT_TO_EDIT_TYPE))
         workoutToEdit.name = etWorkoutName.text.toString()
         workoutToEdit.type = ssCategory.selectedItem.toString()
 
