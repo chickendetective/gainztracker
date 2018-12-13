@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.tasks.OnCompleteListener
@@ -21,6 +22,7 @@ import com.google.firebase.storage.FirebaseStorage
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
+import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_date.*
 import java.io.ByteArrayOutputStream
 import java.net.URLEncoder
@@ -158,6 +160,14 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
             }
         })
+
+        runOnUiThread {
+            recyclerWorkout.adapter = workoutAdapter
+
+            val callback = ItemTouchHelperCallback(workoutAdapter)
+            val touchHelper = ItemTouchHelper(callback)
+            touchHelper.attachToRecyclerView(recyclerWorkout)
+        }
     }
 
     private fun showAddWorkoutDialog() {
