@@ -2,6 +2,7 @@ package hu.ait.android.gainztracker
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -11,6 +12,7 @@ import hu.ait.android.gainztracker.adapter.ExerciseAdapter
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
+import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_workout.*
 import java.util.*
@@ -18,7 +20,7 @@ import java.util.*
 class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private lateinit var exerciseAdapter: ExerciseAdapter
-    private lateinit var workoutAdapter: WorkoutAdapter
+    //private var workoutAdapter = DateActivity().getWorkoutAdapter()
     private lateinit var exerciseListener: ListenerRegistration
 
     private val db = FirebaseFirestore.getInstance()
@@ -44,14 +46,20 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_workout)
 
-        if (intent.hasExtra(DateActivity.WORKOUT_ID)) {
+        if (intent.hasExtra(DateActivity.WORKOUT_ID) && intent.hasExtra(DateActivity.WORKOUT_TYPE)
+                && intent.hasExtra(DateActivity.WORKOUT_NAME)) {
             workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
-            curWorkout = workoutAdapter.findWorkout(workoutID)!!
-            tvWorkout.text = workoutAdapter.findWorkout(workoutID)!!.name
+            val workoutType = intent.getStringExtra(DateActivity.WORKOUT_TYPE)
+            val workoutName = intent.getStringExtra(DateActivity.WORKOUT_NAME)
+
+            curWorkout = Workout(workoutID, workoutName, workoutType)
+            initExerciseRecyclerView()
+            tvWorkout.text = workoutName
             exerciseAdapter.setWorkoutID(workoutID)
         }
 
-        initExerciseRecyclerView()
+
+
         fabAddExercise.setOnClickListener {
             showAddExerciseDialog()
         }
@@ -69,6 +77,23 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val exercisesCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID).collection("exercise")
+
+        val exercisesList  = mutableListOf<Exercise>()
+        exercisesCollection.get()
+                .addOnSuccessListener { result ->
+                    for (document in result) {
+                        val exercise = Exercise(document.get("id").toString(),
+                                document.get("name").toString(), document.get("muscleGroup").toString(),
+                                document.get("set").toString().toInt(), document.get("rep").toString().toInt(),
+                                document.get("weight").toString().toDouble())
+                        exercisesList.add(exercise)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d("TAG", "Error getting documents: ", exception)
+                }
+
+        exerciseAdapter = ExerciseAdapter(this@WorkoutActivity, exercisesList)
 
         exerciseListener = exercisesCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
             override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
@@ -97,6 +122,14 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
             }
         })
+
+        runOnUiThread {
+            recyclerExercise.adapter = exerciseAdapter
+
+            val callback = ItemTouchHelperCallback(exerciseAdapter)
+            val touchHelper = ItemTouchHelper(callback)
+            touchHelper.attachToRecyclerView(recyclerExercise)
+        }
     }
 
     private fun showAddExerciseDialog() {

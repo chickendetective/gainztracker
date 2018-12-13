@@ -76,9 +76,13 @@ class WorkoutAdapter : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>, ItemTouc
 
         holder.itemView.setOnClickListener{
             //            Toast.makeText(context, "BUY THIS!", Toast.LENGTH_LONG).show()
+            Log.d("Workout clicked", holder.itemView.tvName.text.toString())
             val intentStart = Intent(context, WorkoutActivity::class.java)
-            val workoutName = holder.itemView.tvName.toString()
+            val workoutName = holder.itemView.tvName.text.toString()
+            val workoutType = holder.itemView.tvType.text.toString()
             intentStart.putExtra(DateActivity.WORKOUT_ID, nameToKey[workoutName])
+            intentStart.putExtra(DateActivity.WORKOUT_NAME, workoutName)
+            intentStart.putExtra(DateActivity.WORKOUT_TYPE, workoutType)
             context.startActivity(intentStart)
         }
     }

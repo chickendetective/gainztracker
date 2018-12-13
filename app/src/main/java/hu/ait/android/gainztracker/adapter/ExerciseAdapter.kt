@@ -15,10 +15,20 @@ import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Exercise
+import hu.ait.android.gainztracker.data.Workout
+import hu.ait.android.gainztracker.touch.ItemTouchHelperAdapter
 import kotlinx.android.synthetic.main.exercise_card.view.*
 
-class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adapter<ExerciseAdapter.ViewHolder>() {
+class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTouchHelperAdapter {
 
+    override fun onDismiss(position: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+    private val context: Context
     private var exerciseList = mutableListOf<Exercise>()
     private var exerciseKeys = mutableListOf<String>()
     private var nameToKey : MutableMap<String, String> = HashMap()
@@ -30,6 +40,11 @@ class ExerciseAdapter(var context: Context, var uid: String) : RecyclerView.Adap
     private var lastPosition = -1
 
     private var workoutID = ""
+
+    constructor(context: Context, itemList: List<Exercise>) : super() {
+        this.context = context
+        this.exerciseList.addAll(itemList)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(

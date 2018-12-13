@@ -46,6 +46,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     companion object {
         val WORKOUT_ID = "WORKOUT_ID"
+        val WORKOUT_NAME = "WORKOUT_NAME"
+        val WORKOUT_TYPE = "WORKOUT_TYPE"
         val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT_NAME"
         val KEY_WORKOUT_TO_EDIT_TYPE = "KEY_WORKOUT_TO_EDIT_TYPE"
         val KEY_WORKOUT_TO_EDIT_ID = "KEY_WORKOUT_TO_EDIT_ID"
@@ -233,6 +235,11 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     fun getDate(): Any {
         return date.format(curDate.time)
     }
+
+    fun getWorkoutAdapter(): WorkoutAdapter{
+        return workoutAdapter
+    }
+
     @Throws(Exception::class)
     private fun saveImage(){
         val baos = ByteArrayOutputStream()
