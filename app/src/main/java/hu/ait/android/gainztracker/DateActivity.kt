@@ -68,10 +68,10 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             showAddWorkoutDialog()
         }
 
-        /*btnViewGainz.setOnClickListener{
-            *//*if firebase has an imgUrl saved, do below
-             *//*
-            if() {
+        btnViewGainz.setOnClickListener{
+            /*if firebase has an imgUrl saved, do below*/
+
+            /*if() {
                 val imgUrl: String =
                 val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
                 gainzIntent.putExtra(KEY_VIEW_GAINZ, imgUrl)
@@ -79,8 +79,11 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
             }else{
                 Toast.makeText(this,
                         "No Gainz Saved, Please Record Gainz", Toast.LENGTH_SHORT).show()
-            }
-        }*/
+            }*/
+            val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
+            startActivity(gainzIntent)
+
+        }
 
         btnRecordGainz.setOnClickListener {
             startActivityForResult(
