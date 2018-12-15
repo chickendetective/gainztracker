@@ -60,7 +60,7 @@
             card_view:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/btnEditExercise"
+            android:id="@+id/btnEditWorkout"
             android:layout_width="75dp"
             android:layout_height="36dp"
             android:layout_marginEnd="8dp"

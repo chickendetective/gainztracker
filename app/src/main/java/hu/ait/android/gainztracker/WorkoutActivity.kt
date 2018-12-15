@@ -5,13 +5,9 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import android.widget.Toast
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
-import hu.ait.android.gainztracker.adapter.ExerciseAdapter
-import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
@@ -19,12 +15,7 @@ import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_workout.*
 import java.util.*
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.firebase.ui.firestore.SnapshotParser
-//import jdk.nashorn.internal.runtime.ECMAErrors.getMessage
-import com.google.firebase.firestore.FirebaseFirestoreException
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.support.design.widget.Snackbar
+
 //import sun.applet.AppletResourceLoader.getImage
 //import sun.security.krb5.internal.KDCOptions.with
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
@@ -53,8 +44,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val KEY_EXERCISE_TO_EDIT = "KEY_EXERCISE_TO_EDIT"
     }
     private var editIndex: Int = 0
-
-    class SetData(setLeft: Int, reps: Int, weight: Double)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +89,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val exerciseList = exerciseAdapter.getExeList()
 
         recyclerExercise.adapter = exerciseAdapter
-        val exercisesList  = mutableListOf<Exercise>()
+        //val exercisesList  = mutableListOf<Exercise>()
 //        exercisesCollection.get()
 //                .addOnSuccessListener { result ->
 //                    for (document in result) {
@@ -120,7 +109,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 //                }
 
 
-        Log.d("EXERCISELIST", exercisesList.toString())
+        Log.d("EXERCISELIST", exerciseList.toString())
         //exerciseAdapter = ExerciseAdapter(this@WorkoutActivity, exercisesList)
         exerciseAdapter.notifyDataSetChanged()
 
@@ -137,26 +126,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
             exerciseAdapter.notifyDataSetChanged()
             recyclerExercise.adapter = exerciseAdapter
-
-//                for (docChange in querySnapshot!!.documentChanges) {
-//                    when (docChange.type) {
-//                        DocumentChange.Type.ADDED -> {
-//                            val exercise = docChange.document.toObject(Exercise::class.java)
-//                            exercise.id = docChange.document.id
-//                            exerciseAdapter.addExercise(exercise, docChange.document.id)
-//                        }
-////                        DocumentChange.Type.MODIFIED -> {
-////                            Log.d("EDIT_EX", docChange.document.toObject(Exercise::class.java).toString())
-////                            val exercise = docChange.document.toObject(Exercise::class.java)
-////                            exercise.id = docChange.document.id
-////                            exerciseAdapter.editExercise(exercise, docChange.document.id)
-////                        }
-//                        DocumentChange.Type.REMOVED -> {
-//                            exerciseAdapter.removeExerciseByKey(docChange.document.id)
-//                        }
-//                    }
-//                }
-
             }
         )
 
@@ -171,12 +140,17 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         }
     }
 
-//    public override fun onStart() {
-//        super.onStart()
-//
-//        exerciseAdapter.startListening()
-//    }
-//
+    override fun onResume(){
+        super.onResume()
+        initExerciseRecyclerView()
+    }
+
+    public override fun onStart() {
+        super.onStart()
+
+        exerciseAdapter.startListening()
+    }
+
     public override fun onStop() {
         super.onStop()
 
@@ -222,12 +196,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         newEntry.set(data)
                 .addOnSuccessListener {
                     Log.d("SUCCESS", "Updated Successfully")
-//                    Thread {
-//
-//                        runOnUiThread {
-//                            exerciseAdapter.addExercise(exercise, documentReference.id)
-//                        }
-//                    }.start()
                 }
                 .addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
@@ -246,17 +214,8 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                         "set", exercise.set, "rep", exercise.rep, "weight", exercise.weight)
                 .addOnSuccessListener {
                     Log.d("UPDATED", "DocumentSnapshot successfully updated!")
-//                    Thread {
-//                        runOnUiThread {
-//                            Log.d("UPDATED_EX", "DocumentSnapshot successfully updated!")
-//                            exerciseAdapter.editExercise(exercise, exercise.id!!)
-//                        }
-//                    }.start()
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }
 
-//    fun getDate(): Any {
-//        return curDate
-//    }
 }

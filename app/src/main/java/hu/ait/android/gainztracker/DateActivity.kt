@@ -1,6 +1,7 @@
 package hu.ait.android.gainztracker
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.widget.Toast
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -20,7 +22,6 @@ import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.storage.FirebaseStorage
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
-import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_date.*
@@ -33,6 +34,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     private lateinit var workoutAdapter: WorkoutAdapter
     private lateinit var workoutListener: ListenerRegistration
+
+    private var context: Context = this@DateActivity
 
     var uploadBitmap : Bitmap? = null
 
@@ -110,66 +113,61 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 .collection("DayData").document(date.format(curDate.time))
                 .collection("workout") //create a subcollection for all the workouts if not yet there
 
-        val workoutList  = mutableListOf<Workout>()
-        workoutsCollection.get()
-                .addOnSuccessListener { result ->
-            for (document in result) {
-                val workout = Workout(document.id,
-                        document.get("name").toString(), document.get("type").toString())
+        val options = FirestoreRecyclerOptions.Builder<Workout>()
+            .setQuery(workoutsCollection, Workout::class.java)
+            .build()
+
+
+        workoutAdapter = WorkoutAdapter(options, context, workoutsCollection)
+
+        val workoutList = workoutAdapter.getWorkoutList()
+
+        recyclerWorkout.adapter = workoutAdapter
+        workoutAdapter.notifyDataSetChanged()
+
+        workoutListener = workoutsCollection.addSnapshotListener(EventListener { documentSnapshots, e ->
+            if (e != null) {
+                Log.e("TAG", "Listen failed!", e)
+                return@EventListener
+            }
+
+            for (doc in documentSnapshots!!){
+                val workout = doc.toObject(Workout::class.java)
                 workoutList.add(workout)
             }
+
+            Log.d("FILLED LIST", workoutList.toString())
+
+            workoutAdapter.notifyDataSetChanged()
+            recyclerWorkout.adapter = workoutAdapter
         }
-                .addOnFailureListener { exception ->
-                    Log.d("TAG", "Error getting documents: ", exception)
-                }
+        )
 
-        workoutAdapter = WorkoutAdapter(this@DateActivity, workoutList)
-//        Thread {
-//            val itemList = AppDatabase.getInstance(
-//                    this@ScrollingActivity
-//            ).shoppingDao().findAllItems()
-//
-//            itemAdapter = ShoppingAdapter(
-//                    this@ScrollingActivity,
-//                    itemList
-//            )
-
-
-            workoutListener = workoutsCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
-            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
-
-                if(p1 != null){
-                    Toast.makeText(this@DateActivity,"Error: ${p1.message}",
-                            Toast.LENGTH_LONG).show()
-                    return
-                }
-
-                for (docChange in querySnapshot!!.documentChanges) {
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
-                            workoutAdapter.addWorkout(workout, docChange.document.id)
-                        }
-                        DocumentChange.Type.MODIFIED -> {
-                            val workout = docChange.document.toObject(Workout::class.java)
-                            workoutAdapter.editWorkout(workout, docChange.document.id)
-                        }
-                        DocumentChange.Type.REMOVED -> {
-                            workoutAdapter.removeWorkoutByKey(docChange.document.id)
-                        }
-                    }
-                }
-
-            }
-        })
+        workoutAdapter.startListening()
 
         runOnUiThread {
-            recyclerWorkout.adapter = workoutAdapter
 
             val callback = ItemTouchHelperCallback(workoutAdapter)
             val touchHelper = ItemTouchHelper(callback)
             touchHelper.attachToRecyclerView(recyclerWorkout)
         }
+    }
+
+    override fun onResume(){
+        super.onResume()
+        initWorkoutRecyclerView()
+    }
+
+    public override fun onStart() {
+        super.onStart()
+
+        workoutAdapter.startListening()
+    }
+
+    public override fun onStop() {
+        super.onStop()
+
+        workoutAdapter.stopListening()
     }
 
     private fun showAddWorkoutDialog() {
@@ -193,48 +191,43 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     override fun workoutCreated(workout: Workout) {
         //add workout to firebase
-        val data = HashMap<String, Any>()
-        data.put("name", workout.name)
-        data.put("workoutType", workout.type)
-        db.collection("users").document(curUser!!.uid)
+        val workoutCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(date.format(curDate.time))
-                .collection("workout").add(data)
-                .addOnSuccessListener { documentReference ->
-                    Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
-                    workout.id = documentReference.id
-                    Log.d("WORKOUT TAG", workout.toString())
+                .collection("workout")
 
-                }
-                .addOnFailureListener { e ->
-                    Log.w("TAG", "Error adding document", e)
-                }
+        val newDocRef = workoutCollection.document()
+
+        workout.id = newDocRef.id
+        val data = HashMap<String, Any>()
+        data.put("id", workout.id)
+        data.put("name", workout.name)
+        data.put("type", workout.type)
+
+        newDocRef.set(data)
+            .addOnSuccessListener {
+                Log.d("SUCCESS", "Updated Successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.w("TAG", "Error adding document", e)
+            }
     }
 
     override fun workoutUpdated(workout: Workout) {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
         val workoutRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(date.format(curDate.time))
-                .collection("workout").document(workout.id!!)
+                .collection("workout").document(workout.id)
 
         workoutRef
                 .update("name", workout.name, "type", workout.type)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
-                    Thread {
-                        runOnUiThread {
-                            workoutAdapter.editWorkout(workout, workout.id!!)
-                        }
-                    }.start()
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }
 
     fun getDate(): Any {
         return date.format(curDate.time)
-    }
-
-    fun getWorkoutAdapter(): WorkoutAdapter{
-        return workoutAdapter
     }
 
     @Throws(Exception::class)
