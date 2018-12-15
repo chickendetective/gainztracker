@@ -18,14 +18,17 @@ import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Workout
 import hu.ait.android.gainztracker.touch.ItemTouchHelperAdapter
 import kotlinx.android.synthetic.main.workout_card.view.*
+import java.util.*
 
 class WorkoutAdapter : RecyclerView.Adapter<WorkoutAdapter.ViewHolder>, ItemTouchHelperAdapter {
     override fun onDismiss(position: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        removeWorkout(position)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Collections.swap(workoutsList, fromPosition, toPosition)
+        Collections.swap(workoutKeys, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
     }
 
     private var workoutsList = mutableListOf<Workout>()

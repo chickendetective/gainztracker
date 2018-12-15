@@ -149,6 +149,9 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
             dialog.dismiss()
         } else {
             if (etExerciseName.text.isEmpty()) etExerciseName.error = getString(R.string.empty_error)
+            if (etRep.text.isEmpty()) etRep.error = getString(R.string.empty_error)
+            if (etSet.text.isEmpty()) etSet.error = getString(R.string.empty_error)
+            if (etWeight.text.isEmpty()) etWeight.error = getString(R.string.empty_error)
         }
     }
 
@@ -184,7 +187,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
         itemToEdit.rep = etRep.text.toString().toInt()
         itemToEdit.weight = etWeight.text.toString().toDouble()
 
-
+        Log.d("HANDLE_EDIT", itemToEdit.toString())
         exerciseHandler.exerciseUpdated(itemToEdit)
     }
 

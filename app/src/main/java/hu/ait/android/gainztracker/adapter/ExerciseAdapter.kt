@@ -18,15 +18,18 @@ import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import hu.ait.android.gainztracker.touch.ItemTouchHelperAdapter
 import kotlinx.android.synthetic.main.exercise_card.view.*
+import java.util.*
 
-class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTouchHelperAdapter {
+class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder>, ItemTouchHelperAdapter {
 
     override fun onDismiss(position: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        removeExercise(position)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Collections.swap(exerciseList, fromPosition, toPosition)
+        Collections.swap(exerciseKeys, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
     }
     private val context: Context
     private var exerciseList = mutableListOf<Exercise>()
@@ -44,20 +47,26 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTou
     constructor(context: Context, itemList: List<Exercise>) : super() {
         this.context = context
         this.exerciseList.addAll(itemList)
+        Log.d("CREATED_ADAPTER", exerciseList.toString())
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
+    fun addFromDatabse(myList: List<Exercise>){
+        //this.exerciseList.removeAll()
+        this.exerciseList.addAll(myList)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ExerciseHolder {
         val view = LayoutInflater.from(parent.context).inflate(
             R.layout.exercise_card, parent, false
         )
-        return ViewHolder(view)
+        return ExerciseHolder(view)
     }
 
     override fun getItemCount(): Int {
         return exerciseList.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, index: Int) {
+    override fun onBindViewHolder(holder: ExerciseHolder, index: Int) {
         val exercise = exerciseList[holder.adapterPosition]
 
         holder.tvExerciseName.text = exercise.name
@@ -93,7 +102,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTou
 
         val index = exerciseList.indexOf(exercise)
         exerciseRef
-                .update("sets.setLeft", exercise.set)
+                .update("set", exercise.set)
                 .addOnSuccessListener {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                     exerciseList[index].set = exerciseList[index].set - 1
@@ -119,7 +128,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTou
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ExerciseHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvExerciseName: TextView = itemView.tvExerciseName
         val tvMuscleGroup: TextView = itemView.tvMuscleGroup
         val tvSet : TextView = itemView.tvSet
@@ -170,15 +179,17 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ViewHolder>, ItemTou
 
     fun editExercise(exercise: Exercise, id: String){
         val index = exerciseKeys.indexOf(id)
+        Log.d("CHANGED_EX", exercise.toString() + " " + index.toString())
         val oldWorkout = exerciseList[index]
 //        val id = nameToKey[oldWorkout.name]
         nameToKey.remove(oldWorkout.name)
         if (index != -1){
-            exerciseList[index].name = exercise.name
-            exerciseList[index].muscleGroup = exercise.muscleGroup
-            exerciseList[index].set = exercise.set
-            exerciseList[index].rep = exercise.rep
-            exerciseList[index].weight = exercise.weight
+//            exerciseList[index].name = exercise.name
+//            exerciseList[index].muscleGroup = exercise.muscleGroup
+//            exerciseList[index].set = exercise.set
+//            exerciseList[index].rep = exercise.rep
+//            exerciseList[index].weight = exercise.weight
+            exerciseList[index] = exercise
             nameToKey.put(exercise.name, id)
             notifyItemChanged(index)
         }

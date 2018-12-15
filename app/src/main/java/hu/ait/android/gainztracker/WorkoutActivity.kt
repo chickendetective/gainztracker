@@ -1,10 +1,12 @@
 package hu.ait.android.gainztracker
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.widget.Toast
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
@@ -16,10 +18,23 @@ import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_workout.*
 import java.util.*
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
+import com.firebase.ui.firestore.SnapshotParser
+//import jdk.nashorn.internal.runtime.ECMAErrors.getMessage
+import com.google.firebase.firestore.FirebaseFirestoreException
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.support.design.widget.Snackbar
+//import sun.applet.AppletResourceLoader.getImage
+//import sun.security.krb5.internal.KDCOptions.with
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter
+import hu.ait.android.gainztracker.adapter.ExAdapter
+
 
 class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
-    private lateinit var exerciseAdapter: ExerciseAdapter
+    private lateinit var exerciseAdapter: ExAdapter
+    private var context: Context = this@WorkoutActivity
     //private var workoutAdapter = DateActivity().getWorkoutAdapter()
     private lateinit var exerciseListener: ListenerRegistration
 
@@ -46,6 +61,8 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_workout)
 
+        Log.d("STARTING", "Starting Workout Activity")
+
         if (intent.hasExtra(DateActivity.WORKOUT_ID) && intent.hasExtra(DateActivity.WORKOUT_TYPE)
                 && intent.hasExtra(DateActivity.WORKOUT_NAME)) {
             workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
@@ -55,17 +72,14 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
             curWorkout = Workout(workoutID, workoutName, workoutType)
             initExerciseRecyclerView()
             tvWorkout.text = workoutName
-            exerciseAdapter.setWorkoutID(workoutID)
+            //exerciseAdapter.setWorkoutID(workoutID)
         }
-
-
 
         fabAddExercise.setOnClickListener {
             showAddExerciseDialog()
         }
 
     }
-    //STILL NEEDS WORK
     private fun initExerciseRecyclerView() {
         //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
@@ -78,58 +92,95 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID).collection("exercise")
 
+        val options = FirestoreRecyclerOptions.Builder<Exercise>()
+            .setQuery(exercisesCollection, Exercise::class.java)
+            .build()
+
+        exerciseAdapter = ExAdapter(options, context, exercisesCollection)
+        val exerciseList = exerciseAdapter.getExeList()
+
+        recyclerExercise.adapter = exerciseAdapter
         val exercisesList  = mutableListOf<Exercise>()
-        exercisesCollection.get()
-                .addOnSuccessListener { result ->
-                    for (document in result) {
-                        val exercise = Exercise(document.get("id").toString(),
-                                document.get("name").toString(), document.get("muscleGroup").toString(),
-                                document.get("set").toString().toInt(), document.get("rep").toString().toInt(),
-                                document.get("weight").toString().toDouble())
-                        exercisesList.add(exercise)
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.d("TAG", "Error getting documents: ", exception)
-                }
+//        exercisesCollection.get()
+//                .addOnSuccessListener { result ->
+//                    for (document in result) {
+//                        Log.d("ID_TAG", document.id)
+//                        val exercise = Exercise(document.id,
+//                                document.get("name").toString(), document.get("muscleGroup").toString(),
+//                                document.get("set").toString().toInt(), document.get("reps").toString().toInt(),
+//                                document.get("weight").toString().toDouble())
+//                        exercisesList.add(exercise)
+//                    }
+//                    exerciseAdapter.addFromDatabse(exercisesList)
+//                    Log.d("ADDED_LIST", exercisesList.toString())
+//
+//                }
+//                .addOnFailureListener { exception ->
+//                    Log.d("TAG", "Error getting documents: ", exception)
+//                }
 
-        exerciseAdapter = ExerciseAdapter(this@WorkoutActivity, exercisesList)
 
-        exerciseListener = exercisesCollection.addSnapshotListener(object: EventListener<QuerySnapshot> {
-            override fun onEvent(querySnapshot: QuerySnapshot?, p1: FirebaseFirestoreException?) {
+        Log.d("EXERCISELIST", exercisesList.toString())
+        //exerciseAdapter = ExerciseAdapter(this@WorkoutActivity, exercisesList)
+        exerciseAdapter.notifyDataSetChanged()
 
-                if(p1 != null){
-                    Toast.makeText(this@WorkoutActivity,"Error: ${p1.message}",
-                            Toast.LENGTH_LONG).show()
-                    return
-                }
+        exerciseListener = exercisesCollection.addSnapshotListener(EventListener { documentSnapshots, e ->
+            if (e != null) {
+                Log.e("TAG", "Listen failed!", e)
+                return@EventListener
+            }
 
-                for (docChange in querySnapshot!!.documentChanges) {
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            val exercise = docChange.document.toObject(Exercise::class.java)
-                            exerciseAdapter.addExercise(exercise, docChange.document.id)
-                        }
-                        DocumentChange.Type.MODIFIED -> {
-                            val exercise = docChange.document.toObject(Exercise::class.java)
-                            exerciseAdapter.editExercise(exercise, docChange.document.id)
-                        }
-                        DocumentChange.Type.REMOVED -> {
-                            exerciseAdapter.removeExerciseByKey(docChange.document.id)
-                        }
-                    }
-                }
+            for (doc in documentSnapshots!!){
+                val exercise = doc.toObject(Exercise::class.java)
+                exerciseList.add(exercise)
+            }
+
+            exerciseAdapter.notifyDataSetChanged()
+            recyclerExercise.adapter = exerciseAdapter
+
+//                for (docChange in querySnapshot!!.documentChanges) {
+//                    when (docChange.type) {
+//                        DocumentChange.Type.ADDED -> {
+//                            val exercise = docChange.document.toObject(Exercise::class.java)
+//                            exercise.id = docChange.document.id
+//                            exerciseAdapter.addExercise(exercise, docChange.document.id)
+//                        }
+////                        DocumentChange.Type.MODIFIED -> {
+////                            Log.d("EDIT_EX", docChange.document.toObject(Exercise::class.java).toString())
+////                            val exercise = docChange.document.toObject(Exercise::class.java)
+////                            exercise.id = docChange.document.id
+////                            exerciseAdapter.editExercise(exercise, docChange.document.id)
+////                        }
+//                        DocumentChange.Type.REMOVED -> {
+//                            exerciseAdapter.removeExerciseByKey(docChange.document.id)
+//                        }
+//                    }
+//                }
 
             }
-        })
+        )
+
+        exerciseAdapter.startListening()
 
         runOnUiThread {
-            recyclerExercise.adapter = exerciseAdapter
+            //recyclerExercise.adapter = exerciseAdapter
 
             val callback = ItemTouchHelperCallback(exerciseAdapter)
             val touchHelper = ItemTouchHelper(callback)
             touchHelper.attachToRecyclerView(recyclerExercise)
         }
+    }
+
+//    public override fun onStart() {
+//        super.onStart()
+//
+//        exerciseAdapter.startListening()
+//    }
+//
+    public override fun onStop() {
+        super.onStop()
+
+        exerciseAdapter.stopListening()
     }
 
     private fun showAddExerciseDialog() {
@@ -141,6 +192,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         editIndex = idx
         val editItemDialog = ExerciseDialog()
 
+
         val bundle = Bundle()
         bundle.putSerializable(KEY_EXERCISE_TO_EDIT, exerciseToEdit)
         editItemDialog.arguments = bundle
@@ -150,28 +202,32 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseCreated(exercise: Exercise) {
-        //val sets = SetData(exercise.set, exercise.rep, exercise.weight)
-        val data = HashMap<String, Any>()
-        data.put("name", exercise.name)
-        data.put("muscleGroup", exercise.muscleGroup)
-        data.put("set", exercise.set)
-        data.put("reps", exercise.rep)
-        data.put("weight", exercise.weight)
 
-        db.collection("users").document(curUser!!.uid)
+        val exCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID)
                 .collection("exercise")
-                //FIX PATH^^^
-                .add(data)
-                .addOnSuccessListener { documentReference ->
-                    Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
-                    exercise.id = documentReference.id
-                    Thread {
-                        runOnUiThread {
-                            exerciseAdapter.addExercise(exercise, documentReference.id)
-                        }
-                    }.start()
+
+        val newEntry = exCollection.document()
+
+        exercise.id = newEntry.id
+        val data = HashMap<String, Any>()
+        data.put("id", exercise.id)
+        data.put("name", exercise.name)
+        data.put("muscleGroup", exercise.muscleGroup)
+        data.put("set", exercise.set)
+        data.put("rep", exercise.rep)
+        data.put("weight", exercise.weight)
+
+        newEntry.set(data)
+                .addOnSuccessListener {
+                    Log.d("SUCCESS", "Updated Successfully")
+//                    Thread {
+//
+//                        runOnUiThread {
+//                            exerciseAdapter.addExercise(exercise, documentReference.id)
+//                        }
+//                    }.start()
                 }
                 .addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
@@ -179,21 +235,23 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     }
 
     override fun exerciseUpdated(exercise: Exercise) {
+        Log.d("LOGEX", exercise.toString())
         val exerciseRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate.toString())
                 .collection("workout").document(workoutID)
-                .collection("exercise").document(exercise.id!!)
+                .collection("exercise").document(exercise.id)
 
         exerciseRef
                 .update("name", exercise.name, "muscleGroup", exercise.muscleGroup,
-                        "set", exercise.set, "reps", exercise.rep, "weight", exercise.weight)
+                        "set", exercise.set, "rep", exercise.rep, "weight", exercise.weight)
                 .addOnSuccessListener {
-                    Log.d("TAG", "DocumentSnapshot successfully updated!")
-                    Thread {
-                        runOnUiThread {
-                            exerciseAdapter.editExercise(exercise, exercise.id!!)
-                        }
-                    }.start()
+                    Log.d("UPDATED", "DocumentSnapshot successfully updated!")
+//                    Thread {
+//                        runOnUiThread {
+//                            Log.d("UPDATED_EX", "DocumentSnapshot successfully updated!")
+//                            exerciseAdapter.editExercise(exercise, exercise.id!!)
+//                        }
+//                    }.start()
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
     }

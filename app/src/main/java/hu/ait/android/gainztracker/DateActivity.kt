@@ -114,7 +114,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         workoutsCollection.get()
                 .addOnSuccessListener { result ->
             for (document in result) {
-                val workout = Workout(document.get("id").toString(),
+                val workout = Workout(document.id,
                         document.get("name").toString(), document.get("type").toString())
                 workoutList.add(workout)
             }
@@ -202,11 +202,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 .addOnSuccessListener { documentReference ->
                     Log.d("TAG", "DocumentSnapshot written with ID: " + documentReference.id)
                     workout.id = documentReference.id
-                    Thread {
-                        runOnUiThread {
-                            workoutAdapter.addWorkout(workout, documentReference.id)
-                        }
-                    }.start()
+                    Log.d("WORKOUT TAG", workout.toString())
+
                 }
                 .addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
