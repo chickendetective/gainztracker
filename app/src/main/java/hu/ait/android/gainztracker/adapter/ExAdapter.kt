@@ -94,57 +94,14 @@ class ExAdapter(options: FirestoreRecyclerOptions<Exercise>, context: Context, f
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
         Collections.swap(exerciseList, fromPosition, toPosition)
-        //Collections.swap(exerciseKeys, fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
     }
 
     private fun removeExercise(index: Int) {
-        //val exName = exerciseList[index].name
         fb.document(exerciseList[index].id)
             .delete()
         exerciseList.removeAt(index)
-//        exerciseKeys.removeAt(index)
-//        nameToKey.remove(exName)
         notifyItemRemoved(index)
-    }
-
-//    fun removeExerciseByKey(id: String){
-//        val index = exerciseKeys.indexOf(id)
-//        val exercise = exerciseList[index]
-//        if (index != -1) {
-//            db.collection("users").document(curUser!!.uid)
-//                .collection("DayData").document(DateActivity().getDate().toString())
-//                .collection("workout").document(workoutID)
-//                .collection("exercise").document(id)
-//                .delete()
-//            exerciseList.removeAt(index)
-//            exerciseKeys.removeAt(index)
-//            nameToKey.remove(exercise.name)
-//            notifyItemRemoved(index)
-//        }
-//    }
-
-//    fun editExercise(exercise: Exercise, id: String){
-//        val index = exerciseKeys.indexOf(id)
-//        Log.d("CHANGED_EX", exercise.toString() + " " + index.toString())
-//        val oldWorkout = exerciseList[index]
-////        val id = nameToKey[oldWorkout.name]
-////        nameToKey.remove(oldWorkout.name)
-//        if (index != -1){
-////            exerciseList[index].name = exercise.name
-////            exerciseList[index].muscleGroup = exercise.muscleGroup
-////            exerciseList[index].set = exercise.set
-////            exerciseList[index].rep = exercise.rep
-////            exerciseList[index].weight = exercise.weight
-//            exerciseList[index] = exercise
-//            nameToKey.put(exercise.name, id)
-//            notifyItemChanged(index)
-//        }
-//    }
-
-    fun updateExercise(exercise: Exercise, ind: Int){
-        exerciseList[ind] = exercise
-        notifyItemChanged(ind)
     }
 
     fun getExeList(): MutableList<Exercise>{

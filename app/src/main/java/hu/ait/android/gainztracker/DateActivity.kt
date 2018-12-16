@@ -18,8 +18,11 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import hu.ait.android.gainztracker.adapter.WorkoutAdapter
 import hu.ait.android.gainztracker.data.Workout
@@ -27,7 +30,6 @@ import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_date.*
 import java.io.ByteArrayOutputStream
 import java.net.URLEncoder
-import java.text.SimpleDateFormat
 import java.util.*
 
 class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
@@ -65,7 +67,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
         if (intent.hasExtra(MainActivity.KEY_DATE)) {
             Log.d("INTENT CHECKING", intent.getStringExtra(MainActivity.KEY_DATE))
-            //tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
             curDate = intent.getStringExtra(MainActivity.KEY_DATE)
             tvDay.text = curDate
         }
@@ -76,7 +77,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         }
 
         btnViewGainz.setOnClickListener{
-            /*if firebase has an imgUrl saved, do below*/
             val dateRef  = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate).get()
 
@@ -107,14 +107,13 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     }
 
     private fun initWorkoutRecyclerView() {
-        //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
         data.put("lastLogin", Calendar.getInstance().time)
         db.collection("users").document(curUser!!.uid).collection("DayData")
                 .document(curDate).set(data, SetOptions.merge())
         val workoutsCollection = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate)
-                .collection("workout") //create a subcollection for all the workouts if not yet there
+                .collection("workout")
 
         val options = FirestoreRecyclerOptions.Builder<Workout>()
             .setQuery(workoutsCollection, Workout::class.java)
@@ -216,7 +215,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     }
 
     override fun workoutUpdated(workout: Workout) {
-        //update workout in firebase - either using id or index through the keylist in adapter to find it
         val workoutRef = db.collection("users").document(curUser!!.uid)
                 .collection("DayData").document(curDate)
                 .collection("workout").document(workout.id)
@@ -270,7 +268,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                     arrayOf(android.Manifest.permission.CAMERA),
                     1001)
         } else {
-            // we already have this permission
             btnRecordGainz.isEnabled = true
         }
     }

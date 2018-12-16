@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import hu.ait.android.gainztracker.data.Workout
-import kotlinx.android.synthetic.main.dialog_workout.*
 import kotlinx.android.synthetic.main.dialog_workout.view.*
 import java.lang.RuntimeException
 
@@ -37,7 +36,6 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        //val categoryList = mutableListOf(1, 2, 3)
         categories = mutableListOf(getString(R.string.mobility), getString(R.string.strength), getString(R.string.endurance))
 
         if (context is WorkoutHandler){
@@ -50,7 +48,7 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("New Workout")
+        builder.setTitle(getString(R.string.new_workout))
 
         val rootView = rootViewSetter(builder)
         val adapter: ArrayAdapter<String> = adapterMaker(rootView)
@@ -60,13 +58,13 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
                 DateActivity.KEY_WORKOUT_TO_EDIT)) {
             setItem(arguments, adapter)
 
-            builder.setTitle("Edit Workout") }
+            builder.setTitle(getString(R.string.edit_workout)) }
 
-        builder.setPositiveButton("OK") {
+        builder.setPositiveButton(R.string.ok) {
                 dialog, witch -> // empty
         }
 
-        builder.setNegativeButton("Cancel"){
+        builder.setNegativeButton(R.string.cancel){
                 dialog, witch ->
         }
         return builder.create()
@@ -133,7 +131,6 @@ class WorkoutDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun handleItemCreate() {
-        //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
         workoutHandler.workoutCreated(
             Workout("",
                 etWorkoutName.text.toString(),

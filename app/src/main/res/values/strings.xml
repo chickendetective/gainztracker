@@ -36,5 +36,13 @@
     <string name="cur_weight">Weight:</string>
     <string name="view_gainz">View Gainz</string>
     <string name="record_gainz">Record Gainz</string>
+    <string name="new_exercise">New Exercise</string>
+    <string name="edit_exercise">Edit Exercise</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="registration">User Registered</string>
+    <string name="reg_error">Register error:</string>
+    <string name="new_workout">New Workout</string>
+    <string name="edit_workout">Edit Workout</string>
 
 </resources>

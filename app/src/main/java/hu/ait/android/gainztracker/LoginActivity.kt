@@ -49,11 +49,11 @@ class LoginActivity : AppCompatActivity() {
                     .build()
             )
 
-            Toast.makeText(this@LoginActivity, "User Registered",
+            Toast.makeText(this@LoginActivity, getString(R.string.registration),
                 Toast.LENGTH_LONG).show()
 
         }.addOnFailureListener {
-            Toast.makeText(this@LoginActivity, "Register error: ${it.message}",
+            Toast.makeText(this@LoginActivity, getString(R.string.reg_error) + it.message,
                 Toast.LENGTH_LONG).show()
         }
 

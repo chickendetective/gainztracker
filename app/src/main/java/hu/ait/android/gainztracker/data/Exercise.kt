@@ -1,6 +1,5 @@
 package hu.ait.android.gainztracker.data
 
-import hu.ait.android.gainztracker.WorkoutActivity
 import java.io.Serializable
 
 

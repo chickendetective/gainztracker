@@ -5,28 +5,24 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
+import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
+import hu.ait.android.gainztracker.adapter.ExAdapter
 import hu.ait.android.gainztracker.data.Exercise
 import hu.ait.android.gainztracker.data.Workout
 import hu.ait.android.gainztracker.touch.ItemTouchHelperCallback
-import kotlinx.android.synthetic.main.activity_date.*
 import kotlinx.android.synthetic.main.activity_workout.*
 import java.util.*
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
-
-//import sun.applet.AppletResourceLoader.getImage
-//import sun.security.krb5.internal.KDCOptions.with
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter
-import hu.ait.android.gainztracker.adapter.ExAdapter
 
 
 class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private lateinit var exerciseAdapter: ExAdapter
     private var context: Context = this@WorkoutActivity
-    //private var workoutAdapter = DateActivity().getWorkoutAdapter()
     private lateinit var exerciseListener: ListenerRegistration
 
     private val db = FirebaseFirestore.getInstance()
@@ -62,7 +58,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
             curWorkout = Workout(workoutID, workoutName, workoutType)
             initExerciseRecyclerView()
             tvWorkout.text = workoutName
-            //exerciseAdapter.setWorkoutID(workoutID)
         }
 
         fabAddExercise.setOnClickListener {
@@ -71,7 +66,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     }
     private fun initExerciseRecyclerView() {
-        //create a document for current date if hasnt existed
         val data = HashMap<String, Any>()
         data.put("type", curWorkout.type)
         db.collection("users").document(curUser!!.uid)
@@ -90,28 +84,9 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val exerciseList = exerciseAdapter.getExeList()
 
         recyclerExercise.adapter = exerciseAdapter
-        //val exercisesList  = mutableListOf<Exercise>()
-//        exercisesCollection.get()
-//                .addOnSuccessListener { result ->
-//                    for (document in result) {
-//                        Log.d("ID_TAG", document.id)
-//                        val exercise = Exercise(document.id,
-//                                document.get("name").toString(), document.get("muscleGroup").toString(),
-//                                document.get("set").toString().toInt(), document.get("reps").toString().toInt(),
-//                                document.get("weight").toString().toDouble())
-//                        exercisesList.add(exercise)
-//                    }
-//                    exerciseAdapter.addFromDatabse(exercisesList)
-//                    Log.d("ADDED_LIST", exercisesList.toString())
-//
-//                }
-//                .addOnFailureListener { exception ->
-//                    Log.d("TAG", "Error getting documents: ", exception)
-//                }
 
 
         Log.d("EXERCISELIST", exerciseList.toString())
-        //exerciseAdapter = ExerciseAdapter(this@WorkoutActivity, exercisesList)
         exerciseAdapter.notifyDataSetChanged()
 
         exerciseListener = exercisesCollection.addSnapshotListener(EventListener { documentSnapshots, e ->
@@ -133,7 +108,6 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         exerciseAdapter.startListening()
 
         runOnUiThread {
-            //recyclerExercise.adapter = exerciseAdapter
 
             val callback = ItemTouchHelperCallback(exerciseAdapter)
             val touchHelper = ItemTouchHelper(callback)

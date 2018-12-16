@@ -11,13 +11,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
-import hu.ait.android.gainztracker.adapter.ExerciseAdapter
 import hu.ait.android.gainztracker.data.Exercise
-import hu.ait.android.gainztracker.data.Workout
 import kotlinx.android.synthetic.main.dialog_exercise.view.*
-import kotlinx.android.synthetic.main.dialog_workout.*
-import kotlinx.android.synthetic.main.dialog_workout.view.*
-import kotlinx.android.synthetic.main.exercise_card.*
 import java.lang.RuntimeException
 
 class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
@@ -46,7 +41,6 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
-        //val categoryList = mutableListOf(1, 2, 3)
         muscleGroups = mutableListOf(getString(R.string.upper_body), getString(R.string.lower_body), getString(R.string.core))
 
         if (context is ExerciseHandler){
@@ -59,7 +53,7 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("New Exercise")
+        builder.setTitle(getString(R.string.new_exercise))
 
         val rootView = rootViewSetter(builder)
         val adapter: ArrayAdapter<String> = adapterMaker(rootView)
@@ -69,13 +63,13 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
                 WorkoutActivity.KEY_EXERCISE_TO_EDIT)) { //TODO: change into workout activity later
             setItem(arguments, adapter)
 
-            builder.setTitle("Edit Exercise") }
+            builder.setTitle(getString(R.string.edit_exercise)) }
 
-        builder.setPositiveButton("OK") {
+        builder.setPositiveButton(getString(R.string.ok)) {
                 dialog, witch ->
         }
 
-        builder.setNegativeButton("Cancel"){
+        builder.setNegativeButton(getString(R.string.cancel)){
                 dialog, witch ->
         }
         return builder.create()
@@ -156,7 +150,6 @@ class ExerciseDialog: DialogFragment(), AdapterView.OnItemSelectedListener{
     }
 
     private fun handleExerciseCreate() {
-        //val list : ArrayList<Exercise> = arrayListOf<Exercise>()
         val exercise = Exercise("",
                 etExerciseName.text.toString(),
                 ssMuscleGroup.selectedItem.toString(),
