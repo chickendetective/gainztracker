@@ -12,8 +12,6 @@ import android.widget.TextView
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import hu.ait.android.gainztracker.DateActivity
 import hu.ait.android.gainztracker.R
 import hu.ait.android.gainztracker.WorkoutActivity
 import hu.ait.android.gainztracker.data.Exercise
@@ -43,9 +41,9 @@ class ExAdapter(options: FirestoreRecyclerOptions<Exercise>, context: Context, f
         holder.tvWeight.text = context.getString(R.string.cur_weight) + exercise.weight.toString()
 
         when {
-            exercise.muscleGroup == R.string.upper_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
-            exercise.muscleGroup == R.string.lower_body.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
-            exercise.muscleGroup == R.string.core.toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
+            exercise.muscleGroup == (R.string.upper_body).toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
+            exercise.muscleGroup == (R.string.core).toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
+            exercise.muscleGroup == (R.string.lower_body).toString() -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
         }
         holder.btnDeleteExercise.setOnClickListener {
             removeExercise(holder.adapterPosition)
@@ -64,14 +62,15 @@ class ExAdapter(options: FirestoreRecyclerOptions<Exercise>, context: Context, f
 
     private fun logSet(exercise: Exercise) {
         val exerciseRef = fb.document(exercise.id)
-
-        exerciseRef
-            .update("set", exercise.set-1)
-            .addOnSuccessListener {
-                Log.d("TAG", "DocumentSnapshot successfully updated!")
-                notifyDataSetChanged()
-            }
-            .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+        if(exercise.set >= 1) {
+            exerciseRef
+                    .update("set", exercise.set - 1)
+                    .addOnSuccessListener {
+                        Log.d("TAG", "DocumentSnapshot successfully updated!")
+                        notifyDataSetChanged()
+                    }
+                    .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
+        }
     }
 
     private fun addSet(exercise: Exercise) {
