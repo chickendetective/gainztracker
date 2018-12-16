@@ -87,9 +87,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                 Toast.makeText(this,
                         "No Gainz Saved, Please Record Gainz", Toast.LENGTH_SHORT).show()
             }*/
-            val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
-            startActivity(gainzIntent)
-
         }
 
         btnRecordGainz.setOnClickListener {
