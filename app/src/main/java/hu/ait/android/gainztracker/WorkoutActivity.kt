@@ -33,7 +33,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
 
     private var curUser = FirebaseAuth.getInstance().currentUser
 
-    private var curDate = DateActivity().getDate()
+    private lateinit var curDate: String
 
     private var workoutID = ""
 
@@ -53,10 +53,11 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         Log.d("STARTING", "Starting Workout Activity")
 
         if (intent.hasExtra(DateActivity.WORKOUT_ID) && intent.hasExtra(DateActivity.WORKOUT_TYPE)
-                && intent.hasExtra(DateActivity.WORKOUT_NAME)) {
+                && intent.hasExtra(DateActivity.WORKOUT_NAME) && intent.hasExtra(DateActivity.WORKOUT_DATE)) {
             workoutID = intent.getStringExtra(DateActivity.WORKOUT_ID)
             val workoutType = intent.getStringExtra(DateActivity.WORKOUT_TYPE)
             val workoutName = intent.getStringExtra(DateActivity.WORKOUT_NAME)
+            curDate = intent.getStringExtra(DateActivity.WORKOUT_DATE)
 
             curWorkout = Workout(workoutID, workoutName, workoutType)
             initExerciseRecyclerView()
@@ -74,11 +75,11 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
         val data = HashMap<String, Any>()
         data.put("type", curWorkout.type)
         db.collection("users").document(curUser!!.uid)
-            .collection("DayData").document(curDate.toString())
+            .collection("DayData").document(curDate)
             .collection("workout").document(workoutID).set(data, SetOptions.merge())
 
         val exercisesCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(curDate)
                 .collection("workout").document(workoutID).collection("exercise")
 
         val options = FirestoreRecyclerOptions.Builder<Exercise>()
@@ -178,7 +179,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     override fun exerciseCreated(exercise: Exercise) {
 
         val exCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(curDate)
                 .collection("workout").document(workoutID)
                 .collection("exercise")
 
@@ -205,7 +206,7 @@ class WorkoutActivity : AppCompatActivity(), ExerciseDialog.ExerciseHandler {
     override fun exerciseUpdated(exercise: Exercise) {
         Log.d("LOGEX", exercise.toString())
         val exerciseRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(curDate.toString())
+                .collection("DayData").document(curDate)
                 .collection("workout").document(workoutID)
                 .collection("exercise").document(exercise.id)
 

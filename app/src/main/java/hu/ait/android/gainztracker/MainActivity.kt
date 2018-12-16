@@ -10,12 +10,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.android.synthetic.main.activity_main.*
+import java.text.SimpleDateFormat
 import java.util.HashMap
 
 
 class MainActivity : AppCompatActivity() {
     private var curUser = FirebaseAuth.getInstance().currentUser
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var date: String
     companion object {
         val KEY_DATE = "KEY_DATE"
     }
@@ -44,13 +46,20 @@ class MainActivity : AppCompatActivity() {
 //                startActivity(k);
 //
 //            }
+        val ss = SimpleDateFormat("dd-MM-yyyy")
+        date = ss.format(calendar.date)
+        calendar.setOnDateChangeListener(CalendarView.OnDateChangeListener { view, year, month, dayOfMonth ->
+            date = dayOfMonth.toString() + "-" + (month+1).toString() + "-" + year.toString()
+        }
+
+
+        )
 
             btnSelect.setOnClickListener {
-                val dateSelected = calendar.date
-                Log.d("DATE SELECTED", dateSelected.toString())
-                val detailIntent = Intent(this@MainActivity, DateActivity::class.java)
-                detailIntent.putExtra(KEY_DATE, dateSelected.toString())
-                startActivity(detailIntent)
+                Log.d("DATE SELECTED", date)
+                val dateIntent = Intent(this@MainActivity, DateActivity::class.java)
+                dateIntent.putExtra(KEY_DATE, date)
+                startActivity(dateIntent)
             }
         }
 }

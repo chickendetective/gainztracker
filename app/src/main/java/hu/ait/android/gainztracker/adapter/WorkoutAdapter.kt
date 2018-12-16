@@ -193,9 +193,9 @@ class WorkoutAdapter(options: FirestoreRecyclerOptions<Workout>, context: Contex
         holder.tvType.text = workout.type
 
         when {
-            workout.type == R.string.mobility.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
-            workout.type == R.string.strength.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
-            workout.type == R.string.endurance.toString() -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
+            workout.type == "Mobility" -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
+            workout.type == "Strength" -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
+            workout.type == "Endurance" -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
         }
 
         holder.btnEdit.setOnClickListener {
@@ -214,6 +214,7 @@ class WorkoutAdapter(options: FirestoreRecyclerOptions<Workout>, context: Contex
             intentStart.putExtra(DateActivity.WORKOUT_ID, workout.id)
             intentStart.putExtra(DateActivity.WORKOUT_NAME, workoutName)
             intentStart.putExtra(DateActivity.WORKOUT_TYPE, workoutType)
+            intentStart.putExtra(DateActivity.WORKOUT_DATE, (context as DateActivity).curDate)
             context.startActivity(intentStart)
         }
     }

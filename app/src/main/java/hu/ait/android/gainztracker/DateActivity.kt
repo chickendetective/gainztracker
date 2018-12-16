@@ -41,16 +41,15 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
     val db = FirebaseFirestore.getInstance()
 
-    val date = SimpleDateFormat("dd-MM-yyyy")
-
     private var curUser = FirebaseAuth.getInstance().currentUser
 
-    private var curDate = Calendar.getInstance().time
+    lateinit var curDate: String
 
     companion object {
         val WORKOUT_ID = "WORKOUT_ID"
         val WORKOUT_NAME = "WORKOUT_NAME"
         val WORKOUT_TYPE = "WORKOUT_TYPE"
+        val WORKOUT_DATE = "WORKOUT_DATE"
         val KEY_WORKOUT_TO_EDIT = "KEY_WORKOUT_TO_EDIT_NAME"
         val KEY_WORKOUT_TO_EDIT_TYPE = "KEY_WORKOUT_TO_EDIT_TYPE"
         val KEY_WORKOUT_TO_EDIT_ID = "KEY_WORKOUT_TO_EDIT_ID"
@@ -67,8 +66,8 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         if (intent.hasExtra(MainActivity.KEY_DATE)) {
             Log.d("INTENT CHECKING", intent.getStringExtra(MainActivity.KEY_DATE))
             //tvDay.text = intent.getStringExtra(MainActivity.KEY_DATE)
-            curDate = Date(intent.getStringExtra(MainActivity.KEY_DATE).toLong())
-            tvDay.text = date.format(curDate.time)
+            curDate = intent.getStringExtra(MainActivity.KEY_DATE)
+            tvDay.text = curDate
         }
 
         initWorkoutRecyclerView()
@@ -108,9 +107,9 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
         val data = HashMap<String, Any>()
         data.put("lastLogin", Calendar.getInstance().time)
         db.collection("users").document(curUser!!.uid).collection("DayData")
-                .document(date.format(curDate.time)).set(data, SetOptions.merge())
+                .document(curDate).set(data, SetOptions.merge())
         val workoutsCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(date.format(curDate.time))
+                .collection("DayData").document(curDate)
                 .collection("workout") //create a subcollection for all the workouts if not yet there
 
         val options = FirestoreRecyclerOptions.Builder<Workout>()
@@ -192,7 +191,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     override fun workoutCreated(workout: Workout) {
         //add workout to firebase
         val workoutCollection = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(date.format(curDate.time))
+                .collection("DayData").document(curDate)
                 .collection("workout")
 
         val newDocRef = workoutCollection.document()
@@ -215,7 +214,7 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
     override fun workoutUpdated(workout: Workout) {
         //update workout in firebase - either using id or index through the keylist in adapter to find it
         val workoutRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(date.format(curDate.time))
+                .collection("DayData").document(curDate)
                 .collection("workout").document(workout.id)
 
         workoutRef
@@ -224,10 +223,6 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
                     Log.d("TAG", "DocumentSnapshot successfully updated!")
                 }
                 .addOnFailureListener { e -> Log.w("TAG", "Error updating document", e) }
-    }
-
-    fun getDate(): Any {
-        return date.format(curDate.time)
     }
 
     @Throws(Exception::class)

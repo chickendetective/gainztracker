@@ -96,7 +96,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder>, Ite
 
     private fun logSet(exercise: Exercise) {
         val exerciseRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("DayData").document(DateActivity().curDate)
                 .collection("workout").document(workoutID)
                 .collection("exercise").document(nameToKey[exercise.name]!!)
 
@@ -113,7 +113,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder>, Ite
 
     private fun addSet(exercise: Exercise) {
         val exerciseRef = db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("DayData").document(DateActivity().curDate)
                 .collection("workout").document(workoutID)
                 .collection("exercise").document(nameToKey[exercise.name]!!)
 
@@ -151,7 +151,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder>, Ite
     private fun removeExercise(index: Int) {
         val exName = exerciseList[index].name
         db.collection("users").document(curUser!!.uid)
-                .collection("DayData").document(DateActivity().getDate().toString())
+                .collection("DayData").document(DateActivity().curDate)
                 .collection("workout").document(workoutID)
                 .collection("exercise").document(exerciseKeys[index])
                 .delete()
@@ -166,7 +166,7 @@ class ExerciseAdapter: RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder>, Ite
         val exercise = exerciseList[index]
         if (index != -1) {
             db.collection("users").document(curUser!!.uid)
-                    .collection("DayData").document(DateActivity().getDate().toString())
+                    .collection("DayData").document(DateActivity().curDate)
                     .collection("workout").document(workoutID)
                     .collection("exercise").document(id)
                     .delete()
