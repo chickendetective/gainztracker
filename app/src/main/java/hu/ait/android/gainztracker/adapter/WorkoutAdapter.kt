@@ -192,10 +192,12 @@ class WorkoutAdapter(options: FirestoreRecyclerOptions<Workout>, context: Contex
         holder.tvName.text = workout.name
         holder.tvType.text = workout.type
 
+        Log.d("xml string test", context.getString(R.string.mobility))
+
         when {
-            workout.type == "Mobility" -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
-            workout.type == "Strength" -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
-            workout.type == "Endurance" -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
+            workout.type == context.getString(R.string.mobility) -> holder.ivTypeIcon.setImageResource(R.drawable.mobility_workout_icon)
+            workout.type == context.getString(R.string.strength) -> holder.ivTypeIcon.setImageResource(R.drawable.strength_workout_icon)
+            workout.type == context.getString(R.string.endurance) -> holder.ivTypeIcon.setImageResource(R.drawable.endurance_workout_icon)
         }
 
         holder.btnEdit.setOnClickListener {

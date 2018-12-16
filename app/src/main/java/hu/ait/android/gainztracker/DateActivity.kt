@@ -77,16 +77,23 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
         btnViewGainz.setOnClickListener{
             /*if firebase has an imgUrl saved, do below*/
+            val dateRef  = db.collection("users").document(curUser!!.uid)
+                .collection("DayData").document(curDate).get()
 
-            /*if() {
-                val imgUrl: String =
-                val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
-                gainzIntent.putExtra(KEY_VIEW_GAINZ, imgUrl)
-                startActivity(gainzIntent)
-            }else{
-                Toast.makeText(this,
+            dateRef.addOnCompleteListener {
+                task: Task<DocumentSnapshot> ->
+                val data = task.result.data
+                if (data.isNullOrEmpty() or !data!!.containsKey("url")){
+                    Toast.makeText(this,
                         "No Gainz Saved, Please Record Gainz", Toast.LENGTH_SHORT).show()
-            }*/
+                } else{
+                    val imgUrl : String = data["url"].toString()
+                    val gainzIntent = Intent(this@DateActivity, GainzViewActivity::class.java)
+                    gainzIntent.putExtra(KEY_VIEW_GAINZ, imgUrl)
+                    startActivity(gainzIntent)
+                }
+            }
+
         }
 
         btnRecordGainz.setOnClickListener {
@@ -240,13 +247,11 @@ class DateActivity : AppCompatActivity(), WorkoutDialog.WorkoutHandler {
 
                     newImagesRef.downloadUrl.addOnCompleteListener(object: OnCompleteListener<Uri> {
                         override fun onComplete(task: Task<Uri>) {
-                            /*task.result.toString()
-                            *
-                            * ADD THIS^^^ TO DATE FOR FIREBASE
-                            *
-                            * */
-                            /*db.collection("users").document(curUser!!.uid)
-                                    .collection("DayData").*/
+                            val data = HashMap<String, Any>()
+                            data["url"] = task.result.toString()
+
+                            db.collection("users").document(curUser!!.uid)
+                                .collection("DayData").document(curDate).set(data, SetOptions.merge())
                         }
                     })
                 }

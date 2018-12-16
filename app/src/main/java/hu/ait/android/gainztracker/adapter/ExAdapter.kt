@@ -41,9 +41,9 @@ class ExAdapter(options: FirestoreRecyclerOptions<Exercise>, context: Context, f
         holder.tvWeight.text = context.getString(R.string.cur_weight) + exercise.weight.toString()
 
         when {
-            exercise.muscleGroup == "Upper Body" -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
-            exercise.muscleGroup == "Core" -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
-            exercise.muscleGroup == "Lower Body" -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
+            exercise.muscleGroup == context.getString(R.string.upper_body) -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.upperbody_exercise_icon)
+            exercise.muscleGroup == context.getString(R.string.core) -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.core_workout_icon)
+            exercise.muscleGroup == context.getString(R.string.lower_body) -> holder.ivMuscleGroupIcon.setImageResource(R.drawable.lowerbody_workout_icon)
         }
         holder.btnDeleteExercise.setOnClickListener {
             removeExercise(holder.adapterPosition)
